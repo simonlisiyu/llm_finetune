@@ -1,9 +1,9 @@
-# LLaMA Efficient Tuning
+# LLM Finetune
 
-[![GitHub Code License](https://img.shields.io/github/license/hiyouga/LLaMA-Efficient-Tuning)](LICENSE)
-[![GitHub last commit](https://img.shields.io/github/last-commit/hiyouga/LLaMA-Efficient-Tuning)](https://github.com/hiyouga/LLaMA-Efficient-Tuning/commits/main)
+[![GitHub Code License](https://img.shields.io/github/license/simonlisiyu/llm_finetune)](LICENSE)
+[![GitHub last commit](https://img.shields.io/github/last-commit/simonlisiyu/llm_finetune)](https://github.com/simonlisiyu/llm_finetune/commits/main)
 
-👋 加我的[微信](assets/wechat.jpg)。
+👋 加我的[微信](wechat.jpg)。
 
 ## 更新日志
 
@@ -124,18 +124,6 @@ python src/web_demo.py \
 - [ChatGLM2](https://github.com/THUDM/ChatGLM2-6B/blob/main/MODEL_LICENSE)
 - [Phi-1.5](https://huggingface.co/microsoft/phi-1_5/resolve/main/Research%20License.docx)
 
-## 引用
-
-如果您觉得此项目有帮助，请考虑以下列格式引用
-
-```bibtex
-@Misc{llama-efficient-tuning,
-  title = {LLaMA Efficient Tuning},
-  author = {hiyouga},
-  howpublished = {\url{https://github.com/hiyouga/LLaMA-Efficient-Tuning}},
-  year = {2023}
-}
-```
 
 ## 致谢
 
