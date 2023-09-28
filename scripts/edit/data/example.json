@@ -1,0 +1,20 @@
+[
+  {
+    "prompt": "The prime minister of the {} is",
+    "subject": "UK",
+    "target": "Rishi Sunak",
+    "queries": [
+      "The prime minister of the United Kingdom is",
+      "The name of prime minister of the UK is"
+    ]
+  },
+  {
+    "prompt": "{}的首相是",
+    "subject": "日本",
+    "target": "岸田文雄",
+    "queries": [
+      "日本的首相叫作",
+      "日本首相名字是"
+    ]
+  }
+]

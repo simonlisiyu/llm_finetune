@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>文件查看和编辑</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+        }
+
+        h1 {
+            color: #00ff00;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        pre {
+            background-color: #222;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        textarea {
+            width: 100%;
+            font-size: 14px;
+            resize: vertical;  /* 允许垂直调整大小 */
+            overflow: auto;  /* 添加滚动条以防止溢出 */
+        }
+
+        input[type="submit"] {
+            background-color: #555;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #00ff00;
+        }
+    </style>
+    <script>
+        // 自适应调整文本区域的高度
+        function adjustTextareaHeight(textarea) {
+            textarea.style.height = 'auto';  // 先将高度设置为自动以重新计算高度
+            textarea.style.height = textarea.scrollHeight + 'px';  // 设置为实际内容高度
+        }
+    </script>
+</head>
+<body>
+
+<h1>文件内容：</h1>
+<pre>{{ file_content }}</pre>
+
+<h1>编辑说明：</h1>
+<table>
+    <tr>
+        <th>项目</th>
+        <th>内容</th>
+    </tr>
+    <tr>
+        <td><strong>阶段</strong></td>
+        <td>pt -&gt; sft -&gt; rm -&gt; ppo/dpo</td>
+    </tr>
+    <tr>
+        <td><strong>操作</strong></td>
+        <td>do_train, do_eval, do_predict</td>
+    </tr>
+    <tr>
+        <td><strong>模板</strong></td>
+        <td>default, chatglm2, llama2, baichuan, baichuan2, ...</td>
+    </tr>
+    <tr>
+        <td><strong>模型</strong></td>
+        <td>ChatGLM2, LLaMA, LLaMA2, Baichuan, Baichuan2, Falcon, Qwen, XVERSE, BLOOM, BLOOMZ, InternLM</td>
+    </tr>
+    <tr>
+        <td><strong>微调类型</strong></td>
+        <td>full, lora</td>
+    </tr>
+    <tr>
+        <td><strong>lora 目标</strong></td>
+        <td>query_key_value; q_proj,v_proj; W_pack; c_attn; all;</td>
+    </tr>
+    <tr>
+        <td><strong>量化位数</strong></td>
+        <td>4</td>
+    </tr>
+</table>
+
+<h1>编辑文件：</h1>
+<form method="post" action="/save_script">
+    <textarea name="file_content" rows="50" oninput="adjustTextareaHeight(this)">{{ file_content }}</textarea><br>
+    <input type="hidden" name="filepath" value="{{ filepath }}">
+    <input type="hidden" name="filename" value="{{ filename }}">
+    <input type="submit" value="保存文件">
+</form>
+</body>
+</html>

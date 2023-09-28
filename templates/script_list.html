@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<nav>
+    <ul>
+        <li><a href="/">首页</a></li>
+        <li><a href="/data">数据管理</a></li>
+        <li><a href="/finetune">微调训练</a></li>
+        <li><a href="/merge">模型合并</a></li>
+        <li><a href="/chat">模型测试</a></li>
+    </ul>
+</nav>
+
+<head>
+    <title>大模型训练平台</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 36px;
+            color: #58a6ff;
+        }
+
+        h3 {
+            text-align: center;
+        }
+
+        form {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 600px;
+            font-size: 16px;
+            border: 2px solid #58a6ff;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 18px;
+            background-color: #58a6ff;
+            color: #0d1117;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0d1117;
+            color: #58a6ff;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 24px;
+            color: #58a6ff;
+        }
+
+        p {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0 auto; /* Center the table */
+        }
+
+        th {
+            text-align: center;
+            padding: 1rem;
+            background-color: #58a6ff; /* New background color for table header */
+            color: #000; /* Lighter font color for table header */
+            font-size: 16px;
+        }
+
+        td {
+            text-align: center;
+            padding: 1rem;
+            font-size: 16px;
+        }
+
+        /* Set background color for odd rows */
+        tr:nth-child(odd) {
+            background-color: #444; /* Darker background color for odd rows */
+        }
+
+        /* Set background color for even rows */
+        tr:nth-child(even) {
+            background-color: #222; /* Darker background color for even rows */
+        }
+
+        /* Add separator between odd and even rows */
+        tr:nth-child(odd) + tr:nth-child(even) {
+            border-top: 2px solid #fff; /* Separator line color */
+        }
+    </style>
+</head>
+<body>
+<h1>大模型训练平台</h1>
+<h1>脚本训练页面</h1>
+
+<h1>训练脚本和文件列表</h1>
+
+训练步骤: pt -> sft -> rm -> ppo -> merge
+
+<table>
+    <tr>
+        <th>文件名称</th>
+        <th>文件描述</th>
+        <th>上传时间</th>
+        <th>更新时间</th>
+        <th>管理操作</th>
+    </tr>
+    {% for info in script_info %}
+    <tr>
+        <td>{{ info.name }}</td>
+        <td>{{ info.descript }}</td>
+        <td>{{ info.upload_at }}</td>
+        <td>{{ info.update_at }}</td>
+        <td>
+            <form action="/show_script" method="post">
+                <input type="hidden" name="name" value="{{ info.name }}">
+                <input type="hidden" name="filepath" value="{{ info.filepath }}">
+                <button type="submit">编辑文件</button>
+            </form>
+
+            {% if info.filetype == "script" %}
+            <form action="/run_script" method="post">
+                <input type="hidden" name="name" value="{{ info.name }}">
+                <input type="hidden" name="filepath" value="{{ info.filepath }}">
+                <button type="submit">运行脚本</button>
+            </form>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% if result %}
+<h2>处理结果：</h2>
+<p>{{ result }}</p>
+{% endif %}
+
+</body>
+</html>

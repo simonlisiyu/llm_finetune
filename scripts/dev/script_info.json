@@ -1,0 +1,65 @@
+{
+  "run_pt.sh": {
+    "filepath": "scripts/dev/run_pt.sh",
+    "type": "script",
+    "descript": "用于pt 模型预训练的脚本样例，支持glm2、llama、llama2、baichuan、baichuan2、qwen等大模型",
+    "upload_at": "2023-09-17_15:56:28",
+    "update_at": "2023-09-17_15:04:49"
+  },
+  "run_sft.sh": {
+    "filepath": "scripts/dev/run_sft.sh",
+    "type": "script",
+    "descript": "用于sft 模型指令微调训练的脚本样例，支持glm2、llama、llama2、baichuan、baichuan2、qwen等大模型",
+    "upload_at": "2023-09-17_15:56:28",
+    "update_at": "2023-09-17_15:56:28"
+  },
+  "run_rm.sh": {
+    "filepath": "scripts/dev/run_rm.sh",
+    "type": "script",
+    "descript": "用于rm 模型奖励模型训练的脚本样例，支持glm2、llama、llama2、baichuan、baichuan2、qwen等大模型",
+    "upload_at": "2023-09-17_15:56:28",
+    "update_at": "2023-09-17_15:56:28"
+  },
+  "run_ppo.sh": {
+    "filepath": "scripts/dev/run_ppo.sh",
+    "type": "script",
+    "descript": "用于ppo 模型强化学习训练的脚本样例，支持glm2、llama、llama2、baichuan、baichuan2、qwen等大模型",
+    "upload_at": "2023-09-17_15:56:28",
+    "update_at": "2023-09-17_15:56:28"
+  },
+  "run_dpo.sh": {
+    "filepath": "scripts/dev/run_dpo.sh",
+    "type": "script",
+    "descript": "用于dpo 模型直接偏好训练的脚本样例，支持glm2、llama、llama2、baichuan、baichuan2、qwen等大模型",
+    "upload_at": "2023-09-17_15:56:28",
+    "update_at": "2023-09-17_15:56:28"
+  },
+  "ds_config.json": {
+    "filepath": "scripts/dev/ds_config.json",
+    "type": "config",
+    "descript": "用于deepspeed模型训练的配置文件样例",
+    "upload_at": "2023-09-17_15:56:28",
+    "update_at": "2023-09-17_15:56:28"
+  },
+  "run_merge.sh": {
+    "filepath": "scripts/dev/run_merge.sh",
+    "type": "script",
+    "descript": "用于merge 模型合并：训练后模型权重和基础大模型的脚本样例",
+    "upload_at": "2023-09-17_15:56:28",
+    "update_at": "2023-09-17_15:56:28"
+  },
+  "run_eval.sh": {
+    "filepath": "scripts/dev/run_eval.sh",
+    "type": "script",
+    "descript": "用于eval 模型评估：训练后模型权重 或 基础大模型的脚本样例",
+    "upload_at": "2023-09-17_15:56:28",
+    "update_at": "2023-09-17_15:56:28"
+  },
+  "run_predict.sh": {
+    "filepath": "scripts/dev/run_predict.sh",
+    "type": "script",
+    "descript": "用于predict 模型预测：训练后模型权重 或 基础大模型的脚本样例",
+    "upload_at": "2023-09-17_15:56:28",
+    "update_at": "2023-09-17_15:56:28"
+  }
+}

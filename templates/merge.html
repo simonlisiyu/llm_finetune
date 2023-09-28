@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<nav>
+    <ul>
+        <li><a href="/">首页</a></li>
+        <li><a href="/data">数据管理</a></li>
+        <li><a href="/finetune">微调训练</a></li>
+        <li><a href="/merge">模型合并</a></li>
+        <li><a href="/chat">模型测试</a></li>
+    </ul>
+</nav>
+
+<head>
+    <title>大模型训练平台</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 36px;
+            color: #58a6ff;
+        }
+
+        form {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 600px;
+            font-size: 16px;
+            border: 2px solid #58a6ff;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 18px;
+            background-color: #58a6ff;
+            color: #0d1117;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0d1117;
+            color: #58a6ff;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 24px;
+            color: #58a6ff;
+        }
+
+        p {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        /* 设置表格样式 */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0 auto; /* 将表格居中对齐 */
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* 设置表格交替行颜色 */
+        tr:nth-child(even) {
+            color: #000;
+            background-color: #f9f9f9;
+        }
+
+        /* 鼠标悬停时高亮当前行 */
+        tr:hover {
+            color: #000;
+            background-color: #e6e6e6;
+        }
+    </style>
+</head>
+<body>
+<h1>大模型训练平台</h1>
+<h1>模型合并任务，输入参数，并启动离线任务</h1>
+
+<form action="/process_merge" method="post">
+    <label for="input1">基础模型选择：</label>
+    <select name="model_path" id="model_path" required>
+        {% for model in models %}
+        <option value="{{ model }}">{{ model }}</option>
+        {% endfor %}
+    </select>
+    <label for="input2">模型输出目录：</label>
+    <input type="text" name="output_dir" id="output_dir" placeholder="如输入xx，输出目录在/data/models/llama/cn_llama_alpaca/xx" required>
+    <br>
+    <button type="submit">提交</button>
+</form>
+
+<h1>模型合并任务，历史任务列表</h1>
+
+<table>
+    <tr>
+        <th>开始时间</th>
+        <th>结束时间</th>
+        <th>基础模型</th>
+        <th>输出模型</th>
+        <th>合并日志</th>
+    </tr>
+    {% for info in merge_info %}
+    <tr>
+        <td>{{ info.start }}</td>
+        <td>{{ info.end }}%</td>
+        <td>{{ info.base }}</td>
+        <td>{{ info.out }}</td>
+        <td><a href="/{{ info.log }}">查看日志</a></td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% if result %}
+<h2>处理结果：</h2>
+<p>{{ result }}</p>
+{% endif %}
+</body>
+</html>

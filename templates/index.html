@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<nav>
+    <ul>
+        <li><a href="/">首页</a></li>
+        <li><a href="/data">数据管理</a></li>
+        <li><a href="/finetune">微调训练</a></li>
+        <li><a href="/merge">模型合并</a></li>
+        <li><a href="/chat">模型测试</a></li>
+    </ul>
+</nav>
+
+<head>
+    <title>大模型训练平台</title>
+</head>
+<body>
+<h1>大模型训练平台</h1>
+<h1>首页 算力GPU 使用情况</h1>
+
+<table>
+    <tr>
+        <th>GPU</th>
+        <th>名称</th>
+        <th>使用率</th>
+        <th>已使用显存</th>
+        <th>总显存</th>
+    </tr>
+    {% for gpu in gpu_info %}
+    <tr>
+        <td>{{ gpu.index }}</td>
+        <td>{{ gpu.name }}</td>
+        <td>{{ gpu.utilization }}%</td>
+        <td>{{ gpu.memory_used }}</td>
+        <td>{{ gpu.memory_total }}</td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

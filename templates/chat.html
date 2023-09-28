@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<nav>
+    <ul>
+        <li><a href="/">首页</a></li>
+        <li><a href="/data">数据管理</a></li>
+        <li><a href="/finetune">微调训练</a></li>
+        <li><a href="/merge">模型合并</a></li>
+        <li><a href="/chat">模型测试</a></li>
+    </ul>
+</nav>
+
+<head>
+    <title>大模型训练平台</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 80px;
+            font-size: 36px;
+            color: #58a6ff;
+        }
+
+        form {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 600px;
+            font-size: 16px;
+            border: 2px solid #58a6ff;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 18px;
+            background-color: #58a6ff;
+            color: #0d1117;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0d1117;
+            color: #58a6ff;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 24px;
+            color: #58a6ff;
+        }
+
+        p {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        /* 设置表格样式 */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0 auto; /* 将表格居中对齐 */
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* 设置表格交替行颜色 */
+        tr:nth-child(even) {
+            color: #000;
+            background-color: #f9f9f9;
+        }
+
+        /* 鼠标悬停时高亮当前行 */
+        tr:hover {
+            color: #000;
+            background-color: #e6e6e6;
+        }
+        .link {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 12px;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .link:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+<h1>大模型训练平台</h1>
+<br><br>
+<a href="{{ ai_url }}" target="_blank" class="link">大模型聊天系统</a>
+
+<h1>模型测试docker环境启动</h1>
+
+<form action="/process_chat" method="post">
+    <label for="input1">模型显示名称：</label>
+    <input type="text" name="model_name" id="model_name" placeholder="如 cn-llama-alpaca-7b，会在localai中显示此名称，也是docker容器名称" required>
+<!--    <label for="input2">模型父级目录：</label>-->
+<!--    <input type="text" name="parent_dir" id="parent_dir" value="{{ host }}" placeholder="如模型在/data/models/llama/cn_llama_alpaca/7b_case，请输入: /data/models/llama/cn_llama_alpaca" required>-->
+    <label for="input3">模型子目录：</label>
+    <select name="model_dir" id="model_dir" required>
+        {% for dir in dirs %}
+        <option value="{{ dir.filename }}">{{ dir.filename }}</option>
+        {% endfor %}
+    </select>
+    <label for="input4">推理gpu卡（可逗号分隔填多卡）：</label>
+    <input type="text" name="gpus" id="gpus" placeholder="根据服务器gpu卡情况而定，如服务器GPU可选0-7，输入: 0,1" required>
+<!--    <label for="input4">推理服务ip：</label>-->
+<!--    <input type="text" name="ip" id="ip" value="{{ app_ip }}" placeholder="访问ip地址，如192.168.1.100" required>-->
+    <label for="input5">推理服务port：</label>
+    <input type="text" name="port" id="port" placeholder="非冲突的端口号，如23624" required>
+    <br>
+    <button type="submit">提交</button>
+</form>
+
+
+<h1>模型测试docker启动环境列表</h1>
+
+<table>
+    <tr>
+        <th>NAMES</th>
+        <th>CREATED</th>
+        <th>STATUS</th>
+        <th>PORTS</th>
+        <th>IMAGE</th>
+        <th>Actions</th>
+    </tr>
+    {% for info in chat_info %}
+    <tr>
+        <td>{{ info.name }}</td>
+        <td>{{ info.created_at }}%</td>
+        <td>{{ info.status }}</td>
+        <td>{{ info.ports }}</td>
+        <td>{{ info.image }}</td>
+        <td>
+            {% if info.status == "running" %}
+            <form action="/stop-container" method="post">
+                <input type="hidden" name="container_id" value="{{ info.container_id }}">
+                <button type="submit">Stop</button>
+            </form>
+            {% else %}
+            <form action="/start-container" method="post">
+                <input type="hidden" name="container_id" value="{{ info.container_id }}">
+                <button type="submit">Start</button>
+            </form>
+            {% endif %}
+            <form action="/logs-container" method="post">
+                <input type="hidden" name="container_id" value="{{ info.container_id }}">
+                <button type="submit">Logs</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+
+
+
+
+{% if result %}
+<h2>处理结果：</h2>
+<p>{{ result }}</p>
+{% endif %}
+</body>
+</html>
