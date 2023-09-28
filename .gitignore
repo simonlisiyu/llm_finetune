@@ -1,0 +1,16 @@
+# 忽略Python编译文件
+*.pyc
+
+# 忽略开发环境配置文件
+.env
+
+# 忽略依赖项安装目录
+venv/
+
+# 忽略日志文件
+logs/*
+
+.test
+.idea/
+.ipynb_checkpoints/
+*.iml
