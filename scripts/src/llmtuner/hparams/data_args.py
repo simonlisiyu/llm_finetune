@@ -2,7 +2,9 @@ import os
 import json
 from typing import List, Literal, Optional
 from dataclasses import dataclass, field
+from llmtuner.llmtuner_settings import Settings
 
+llmtuner_settings = Settings()
 
 @dataclass
 class DatasetAttr:
@@ -35,7 +37,7 @@ class DataArguments:
         metadata={"help": "The name of provided dataset(s) to use. Use commas to separate multiple datasets."}
     )
     dataset_dir: Optional[str] = field(
-        default="/app/data",
+        default=llmtuner_settings.dataset_info_path,
         metadata={"help": "The name of the folder containing datasets."}
     )
     split: Optional[str] = field(

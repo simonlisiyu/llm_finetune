@@ -1,0 +1,7 @@
+# 171
+redis:
+  ip: '192.168.1.167'
+  port: 6679
+  password: '123'
+trainer:
+  dataset_info_path: '/data0/service/llm_finetune/data/'

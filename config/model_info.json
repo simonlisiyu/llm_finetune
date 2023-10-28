@@ -1,0 +1,8 @@
+{
+  "chatglm2-6b": {
+    "model_path": "llm/ChatGLM2-6B",
+    "template": "chatglm2",
+    "size": "6",
+    "update_at": "2023-07-06_15:56:28"
+  }
+}

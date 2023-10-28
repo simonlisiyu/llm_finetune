@@ -70,6 +70,10 @@ class FinetuningArguments:
         default=0.1,
         metadata={"help": "The beta parameter for the DPO loss."}
     )
+    task_id: Optional[str] = field(
+        default="task_id123",
+        metadata={"help": "Task ID for The Job Task"}
+    )
 
     def __post_init__(self):
         if isinstance(self.lora_target, str): # support custom target modules/layers of LoRA

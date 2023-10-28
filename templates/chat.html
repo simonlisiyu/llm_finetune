@@ -6,6 +6,7 @@
         <li><a href="/data">数据管理</a></li>
         <li><a href="/finetune">微调训练</a></li>
         <li><a href="/merge">模型合并</a></li>
+        <li><a href="/eval">模型评估</a></li>
         <li><a href="/chat">模型测试</a></li>
     </ul>
 </nav>
@@ -123,15 +124,13 @@
 <body>
 <h1>大模型训练平台</h1>
 <br><br>
-<a href="{{ ai_url }}" target="_blank" class="link">大模型聊天系统</a>
+<a href="{{ ai_url }}" target="_blank" class="link">乾坤大模型聊天系统</a>
 
 <h1>模型测试docker环境启动</h1>
 
-<form action="/process_chat" method="post">
+<form action="/chat/deploy/start" method="post">
     <label for="input1">模型显示名称：</label>
     <input type="text" name="model_name" id="model_name" placeholder="如 cn-llama-alpaca-7b，会在localai中显示此名称，也是docker容器名称" required>
-<!--    <label for="input2">模型父级目录：</label>-->
-<!--    <input type="text" name="parent_dir" id="parent_dir" value="{{ host }}" placeholder="如模型在/data/models/llama/cn_llama_alpaca/7b_case，请输入: /data/models/llama/cn_llama_alpaca" required>-->
     <label for="input3">模型子目录：</label>
     <select name="model_dir" id="model_dir" required>
         {% for dir in dirs %}
@@ -140,8 +139,6 @@
     </select>
     <label for="input4">推理gpu卡（可逗号分隔填多卡）：</label>
     <input type="text" name="gpus" id="gpus" placeholder="根据服务器gpu卡情况而定，如服务器GPU可选0-7，输入: 0,1" required>
-<!--    <label for="input4">推理服务ip：</label>-->
-<!--    <input type="text" name="ip" id="ip" value="{{ app_ip }}" placeholder="访问ip地址，如192.168.1.100" required>-->
     <label for="input5">推理服务port：</label>
     <input type="text" name="port" id="port" placeholder="非冲突的端口号，如23624" required>
     <br>

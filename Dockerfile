@@ -1,5 +1,5 @@
 FROM cuda_python:3.9.13-gpu
-LABEL org.opencontainers.image.authors="lisiyu@haizhi.com"
+LABEL org.opencontainers.image.authors="otter202@gmail.com"
 
 WORKDIR /app
 

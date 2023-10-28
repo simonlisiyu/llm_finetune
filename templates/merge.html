@@ -6,6 +6,7 @@
         <li><a href="/data">数据管理</a></li>
         <li><a href="/finetune">微调训练</a></li>
         <li><a href="/merge">模型合并</a></li>
+        <li><a href="/eval">模型评估</a></li>
         <li><a href="/chat">模型测试</a></li>
     </ul>
 </nav>
@@ -109,15 +110,15 @@
 <h1>大模型训练平台</h1>
 <h1>模型合并任务，输入参数，并启动离线任务</h1>
 
-<form action="/process_merge" method="post">
+<form action="/merge/task/run" method="post">
     <label for="input1">基础模型选择：</label>
-    <select name="model_path" id="model_path" required>
+    <select name="model_name" id="model_name" required>
         {% for model in models %}
         <option value="{{ model }}">{{ model }}</option>
         {% endfor %}
     </select>
     <label for="input2">模型输出目录：</label>
-    <input type="text" name="output_dir" id="output_dir" placeholder="如输入xx，输出目录在/data/models/llama/cn_llama_alpaca/xx" required>
+    <input type="text" name="output_path" id="output_path" placeholder="如输入xx，输出目录在/data/models/llama/cn_llama_alpaca/xx" required>
     <br>
     <button type="submit">提交</button>
 </form>
@@ -127,7 +128,6 @@
 <table>
     <tr>
         <th>开始时间</th>
-        <th>结束时间</th>
         <th>基础模型</th>
         <th>输出模型</th>
         <th>合并日志</th>
@@ -135,7 +135,6 @@
     {% for info in merge_info %}
     <tr>
         <td>{{ info.start }}</td>
-        <td>{{ info.end }}%</td>
         <td>{{ info.base }}</td>
         <td>{{ info.out }}</td>
         <td><a href="/{{ info.log }}">查看日志</a></td>

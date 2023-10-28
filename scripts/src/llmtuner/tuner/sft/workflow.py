@@ -7,7 +7,10 @@ from llmtuner.dsets import get_dataset, preprocess_dataset, split_dataset
 from llmtuner.extras.constants import IGNORE_INDEX
 from llmtuner.extras.misc import get_logits_processor
 from llmtuner.extras.ploting import plot_loss
+from llmtuner.tuner.client.redis_tools import RedisSingleton
+from llmtuner.llmtuner_settings import Settings
 from llmtuner.tuner.core import load_model_and_tokenizer
+from llmtuner.tuner.core.metric_callback import MetricCallback
 from llmtuner.tuner.sft.metric import ComputeMetrics
 from llmtuner.tuner.sft.trainer import CustomSeq2SeqTrainer
 
@@ -15,14 +18,20 @@ if TYPE_CHECKING:
     from transformers import TrainerCallback
     from llmtuner.hparams import ModelArguments, DataArguments, FinetuningArguments, GeneratingArguments
 
+llmtuner_settings = Settings()
+# Redis Client
+redis_instance = RedisSingleton(host=llmtuner_settings.redis_ip,
+                                port=llmtuner_settings.redis_port,
+                                password=llmtuner_settings.redis_password)
+r = redis_instance.get_redis()
 
 def run_sft(
-    model_args: "ModelArguments",
-    data_args: "DataArguments",
-    training_args: "Seq2SeqTrainingArguments",
-    finetuning_args: "FinetuningArguments",
-    generating_args: "GeneratingArguments",
-    callbacks: Optional[List["TrainerCallback"]] = None
+        model_args: "ModelArguments",
+        data_args: "DataArguments",
+        training_args: "Seq2SeqTrainingArguments",
+        finetuning_args: "FinetuningArguments",
+        generating_args: "GeneratingArguments",
+        callbacks: Optional[List["TrainerCallback"]] = None
 ):
     dataset = get_dataset(model_args, data_args)
     model, tokenizer = load_model_and_tokenizer(model_args, finetuning_args, training_args.do_train, stage="sft")
@@ -45,6 +54,12 @@ def run_sft(
     training_args = Seq2SeqTrainingArguments(**training_args_dict)
 
     # Initialize our Trainer
+    if training_args.do_train:
+        callbacks = [MetricCallback(task_id=finetuning_args.task_id, stage=0)]
+    if training_args.do_eval:
+        callbacks = [MetricCallback(task_id=finetuning_args.task_id, stage=1)]
+    if training_args.do_predict:
+        callbacks = [MetricCallback(task_id=finetuning_args.task_id, stage=3)]
     trainer = CustomSeq2SeqTrainer(
         model=model,
         args=training_args,
@@ -64,6 +79,12 @@ def run_sft(
     # Training
     if training_args.do_train:
         train_result = trainer.train(resume_from_checkpoint=training_args.resume_from_checkpoint)
+        print("1111111111111111111111111,train_result: ", train_result)
+        try:
+            r.hset(llmtuner_settings.TRAIN_TASK_RESULT_KEY, finetuning_args.task_id, str(train_result.metrics))
+            print("success put hset ", llmtuner_settings.TRAIN_TASK_RESULT_KEY, finetuning_args.task_id)
+        except Exception as e:
+            print("failed put hset ", llmtuner_settings.TRAIN_TASK_RESULT_KEY, e)
         trainer.log_metrics("train", train_result.metrics)
         trainer.save_metrics("train", train_result.metrics)
         trainer.save_state()
@@ -76,6 +97,12 @@ def run_sft(
         metrics = trainer.evaluate(metric_key_prefix="eval", **gen_kwargs)
         if training_args.predict_with_generate: # eval_loss will be wrong if predict_with_generate is enabled
             metrics.pop("eval_loss", None)
+        print("1111111111111111111111111,eval_result: ", metrics)
+        try:
+            r.hset(llmtuner_settings.EVAL_TASK_RESULT_KEY, finetuning_args.task_id, str(metrics))
+            print("success put hset ", llmtuner_settings.EVAL_TASK_RESULT_KEY, finetuning_args.task_id)
+        except Exception as e:
+            print("failed put hset ", llmtuner_settings.EVAL_TASK_RESULT_KEY, e)
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
 
@@ -84,6 +111,12 @@ def run_sft(
         predict_results = trainer.predict(dataset, metric_key_prefix="predict", **gen_kwargs)
         if training_args.predict_with_generate: # predict_loss will be wrong if predict_with_generate is enabled
             predict_results.metrics.pop("predict_loss", None)
+        print("1111111111111111111111111,train_result: ", predict_results)
+        # try:
+            # r.hset('ALITA:TASK:TRAIN:RESULT', finetuning_args.task_id, str(train_result.metrics))
+            # print("success hset ALITA:TASK:TRAIN:RESULT,", finetuning_args.task_id)
+        # except:
+        #     print("failed hset ALITA:TASK:TRAIN:RESULT,", finetuning_args.task_id)
         trainer.log_metrics("predict", predict_results.metrics)
         trainer.save_metrics("predict", predict_results.metrics)
         trainer.save_predictions(predict_results)

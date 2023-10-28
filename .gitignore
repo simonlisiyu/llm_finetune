@@ -10,7 +10,9 @@ venv/
 # 忽略日志文件
 logs/*
 
-.test
 .idea/
 .ipynb_checkpoints/
 *.iml
+
+# 忽略本地模型文件
+llm/*

@@ -6,6 +6,7 @@
         <li><a href="/data">数据管理</a></li>
         <li><a href="/finetune">微调训练</a></li>
         <li><a href="/merge">模型合并</a></li>
+        <li><a href="/eval">模型评估</a></li>
         <li><a href="/chat">模型测试</a></li>
     </ul>
 </nav>
@@ -32,6 +33,55 @@
         <td>{{ gpu.utilization }}%</td>
         <td>{{ gpu.memory_used }}</td>
         <td>{{ gpu.memory_total }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<table>
+    <tr>
+        <th>CPU</th>
+        <th>频率</th>
+        <th>使用率</th>
+    </tr>
+    {% for cpu in cpu_info %}
+    <tr>
+        <td>{{ cpu.index }}</td>
+        <td>{{ cpu.freq }}</td>
+        <td>{{ cpu.utilization }}%</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<table>
+    <tr>
+        <th>总内存</th>
+        <th>可用内存</th>
+        <th>使用率</th>
+    </tr>
+    {% for mem in mem_info %}
+    <tr>
+        <td>{{ mem.total }}</td>
+        <td>{{ mem.available }}</td>
+        <td>{{ mem.percent }}%</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<table>
+    <tr>
+        <th>磁盘</th>
+        <th>挂载点</th>
+        <th>总空间</th>
+        <th>可用空间</th>
+        <th>使用率</th>
+    </tr>
+    {% for disk in disk_info %}
+    <tr>
+        <td>{{ disk.index }}</td>
+        <td>{{ disk.mount }}</td>
+        <td>{{ disk.total }}</td>
+        <td>{{ disk.available }}</td>
+        <td>{{ disk.percent }}%</td>
     </tr>
     {% endfor %}
 </table>

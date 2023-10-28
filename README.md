@@ -7,6 +7,14 @@
 
 ## 更新日志
 
+[23/10/28]
+代码重构，支持整体代码整合到alita-trainer里；
+yaml配置文件精简规整，多模型的训练、合并脚本合并统一；
+模型部署服务bug修复；
+支持大模型评估，支持BLEU-4、ROUGE-1/2/L；
+支持微调训练后的大模型作为训练模型再训练；
+系统监控除gpu，支持cpu、mem和disk监控；
+
 [23/09/28]
 支持baichuan、llama2、llama、glm2等大模型，支持QLoRA；
 支持gpu预览、大模型微调训练、模型合并、部署服务（测试中）；
@@ -46,21 +54,35 @@
 
 
 ## 目录说明
-- run_server.py              # 启动程序
 - main.py              # FastAPI应用程序
-- apis/                 # API接口
+- bin/                 # 程序脚本
 - config/                 # 配置文件
-- docs/                 # 说明文档
+- data                 # 数据文件
+- doc/                 # 文档
+- lib/                 # 额外依赖
+- llm/                 # 大模型权重
 - logs/                # 日志目录
-- peft-xxx/              # peft
-- scripts/             # 训练等脚本
-- templates/              # html模板
-- test/                # 测试用例
+- scripts/             # 训练脚本
+- templates/           # html模板
+- trainer/                # 应用代码
+    - api/                 # api
+    - model/                 # 对象
+    - service/                 #服务
+    - settings.py                 #配置
 
 
 
 ## 项目启动
 > python run_server.py
+
+## 配置文件
+- config/trainer.yaml  # 服务配置文件
+- scripts/src/llmtuner/llmtuner_settings # 训练脚本配置文件
+- config/model_info.json  # 模型配置文件
+- data/dataset_info.json  # 数据集配置文件
+
+### 配置文件注意：base_dir等修改正确。
+### 环境注意：启动会依赖环境，目录及文件需要提前创建好。
 
 ## docker
 ### 构建镜像
@@ -68,20 +90,23 @@
 ### 运行容器
 > docker run --gpus all --network host --ipc host --name llm_finetune -d \
 --ulimit memlock=-1 --ulimit stack=67108864 \
--v /data0/service/llm_finetune/config/171.env.yaml:/app/config/env.yaml \
+-v /data0/service/llm_finetune/config/171.trainer.yaml:/app/config/trainer.yaml \
+-v /data0/LLMs/model_info.json:/app/config/model_info.json \
 -v /var/run/docker.sock:/var/run/docker.sock \
--v /data0/LLMs:/app/original-weights \
--v /data0/service/llm_finetune/logs:/app/logs \
--v /data0/service/llm_finetune/data:/app/data \
+-v /data0/LLMs:/app/llm \
+-v /data0/logs/llm_finetune:/app/logs \
+-v /data0/data/llm_finetune:/app/data \
 --security-opt seccomp=unconfined \
 docker.li.com/llm_finetune
 
+### docker环境注意：-v之后，trainer.yaml配置容器内目录及文件。
+
 ## 服务验证
 ### web服务
-> http://localhost:8088/docs
+> http://localhost:8000/docs
 
 ### 首页
-> http://localhost:8088
+> http://localhost:8000
 
 ### 离线项目环境
 ```shell
