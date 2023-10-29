@@ -4,7 +4,7 @@
 
 # 首页
 
-[首页](img/index.jpg)
+![首页](img/index.jpg)
 
 # 数据管理
 
