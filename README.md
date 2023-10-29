@@ -72,8 +72,9 @@ yaml配置文件精简规整，多模型的训练、合并脚本合并统一；
 
 
 
-## 项目启动
-> python run_server.py
+## 项目使用
+
+https://github.com/simonlisiyu/llm_finetune/blob/main/doc/HOW_TO_USE.md
 
 ## 配置文件
 - config/trainer.yaml  # 服务配置文件
