@@ -32,8 +32,8 @@
 - 列表展示历史评估记录
   ![模型评估](img/evaluate.jpg)
 
-# 模型测试
-- 快速部署大模型服务（fastapi+docker），支持模型命名、模型选择、GPU卡、端口指定
+# 模型测试(修改测试中)
+- 快速部署大模型服务（fastchat+docker），支持模型命名、模型选择、GPU卡、端口指定
 - 部署过程中支持查看docker日志
 - 列表展示docker部署情况，支持启动停止操作
   ![模型测试](img/service.jpg)

@@ -94,7 +94,7 @@ def llm_docker_start(model_name, parent_dir, model_dir, gpus, cip, cport, ip, po
     ports = {
         "23621/tcp": port
     }
-    command = f"python3 -m alita.worker " \
+    command = f"python3 -m fastchat.serve.model_worker " \
               f"--model-path /LLMs/{model_dir} " \
               f"--controller http://{cip}:{cport} " \
               f"--worker http://{ip}:{port} " \
@@ -105,7 +105,7 @@ def llm_docker_start(model_name, parent_dir, model_dir, gpus, cip, cport, ip, po
     start_df = datetime.now().strftime(my_settings.datatime_sft)
     print("=====>>>>> 大语言模型docker开始执行:", command)
     container = client.containers.run(
-        "docker.art.haizhi.com/dmc/alita",
+        "fastchat:latest",
         detach=True,
         name=model_name,
         environment=environment,
@@ -117,7 +117,7 @@ def llm_docker_start(model_name, parent_dir, model_dir, gpus, cip, cport, ip, po
     )
     end_df = datetime.now().strftime(my_settings.datatime_sft)
     print(f"===== 大语言模型 {container.name} docker执行完成: ", command, end_df)
-    write_csv_file("llm_docker_localai", start_df, end_df, model_name, parent_dir, model_dir, gpus, ip, port)
+    write_csv_file("llm_docker_fastchat", start_df, end_df, model_name, parent_dir, model_dir, gpus, ip, port)
 
 
 '''
@@ -138,4 +138,4 @@ subprocess way
 #
 #     end_df = datetime.now().strftime(datatime_sft)
 #     print("===== 大语言模型docker执行完成: ", command, end_df)
-#     write_csv_file("llm_docker_localai", start_df, end_df, model_name, model_dir, gpus, port, log_file_path)
+#     write_csv_file("llm_docker_fastchat", start_df, end_df, model_name, model_dir, gpus, port, log_file_path)
