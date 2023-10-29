@@ -71,6 +71,9 @@ yaml配置文件精简规整，多模型的训练、合并脚本合并统一；
     - settings.py                 #配置
 
 
+## 项目启动
+
+https://github.com/simonlisiyu/llm_finetune/blob/main/doc/HOW_TO_START.md
 
 ## 项目使用
 

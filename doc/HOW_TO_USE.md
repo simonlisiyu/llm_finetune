@@ -1,91 +1,19 @@
+平台用来给不了解研发、算法的人员使用的，所以平台的使用尽量简单，不需要用户了解太多的细节，只需要按照流程操作即可。
+用最简的页面，包括首页资源查看、训练数据上传下载、大模型微调训练、大模型权重合并输出、大模型能力评估、大模型部署服务启动等功能。
+最后的训练脚本页面，开发人员能够自由修改脚本，提供了更高级的使用方法。
 
-## llm_finetune服务，全新部署或历史版本升级
+# 首页
 
-### 一、环境准备：
-1. 代码
-   > git clone https://github.com/simonlisiyu/llm_finetune.git
-   > cd llm_finetune
-   > pip install -r requirements.txt
-2. 目录准备
-   > cd llm_finetune
+[首页](img/index.jpg)
 
-   创建目录`mkdir config`
+# 数据管理
 
-   关联数据目录： `ln -s /opt/haizhi/common/data/dataset`
+# 微调训练
 
-   关联大模型目录：`ln -s /opt/haizhi/common/data/llm`
-3. 修改配置
-   > vi config/trainer.yaml
+# 模型合并
 
-   注意：
+# 模型评估
 
-    1. 将 `$IP` 替换为本机ip；（如192.168.1.171）
-    2. 将 `$Alita_IP` 替换为alita ip；（如192.168.1.171）
-    3. 将 '$MODEL_DIR' 替换为本机大模型路径；
-    4. 将 REDIS等在需要将监控metric上报时才需要填写；（不用则无需关注）
+# 模型测试
 
-   ``` 
-   application: 
-     ip: '$IP' 
-     port: $PORT 
-     log_level: 'info' 
-   controller:
-     ip: '$Alita_IP' 
-     port: $Alita_PORT 
-   worker:
-     model_dir: '$MODEL_DIR' 
-   trainer: 
-     ports: [9901, 9902, 9903, 9904, 9905, 9906, 9907, 9908, 9909, 9910] 
-     base_dir: '/app' 
-     data_dir: 'data/' 
-     model_dir: 'llm/' 
-     log_dir: 'logs/' 
-     dev_script_dir: 'scripts/dev/' 
-     data_file: "data/dataset_info.json" 
-     model_file: "llm/model_info.json" 
-     finetune_checkpoint: "sft_checkpoint" 
-     max_node_num: '1' 
-     max_process_num: '1' 
-   redis: 
-     ip: '$REDIS_IP' 
-     port: $REDIS_PORT 
-     password: '$REDIS_PASSWORD' 
-
-   ``` 
-
-   参考下面的例子：
-
-   ``` 
-   application:
-     ip: '192.168.1.171'
-     port: 8000
-     log_level: 'info'
-   controller:
-     ip: '192.168.1.171'
-     port: 23620
-   worker:
-     model_dir: '/data/s3/llm/'
-   trainer:
-     ports: [9901, 9902, 9903, 9904, 9905, 9906, 9907, 9908, 9909, 9910]
-     base_dir: '/data/s3/'
-     data_dir: 'data/'
-     model_dir: 'llm/'
-     log_dir: 'logs/'
-     dev_script_dir: 'scripts/dev/'
-     data_file: "data/dataset_info.json"
-     model_file: "config/model_info.json"
-     finetune_checkpoint: "sft_checkpoint"
-     max_node_num: '1'
-     max_process_num: '1'
-   redis:
-     ip: '192.168.1.167'
-     port: 6679
-     password: '123'
-
-   ``` 
-
-4. 启动服务
-   > python run_server.py
-
-5. 查看页面
-   http://127.0.0.1:8000
+# 训练脚本
