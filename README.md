@@ -1,4 +1,5 @@
-# LLM Finetune
+# LLM Finetune 网页格式一键式的全流程平台，包括数据上传、微调训练、模型合并、模型部署服务等，无需python和shell开发
+
 
 [![GitHub Code License](https://img.shields.io/github/license/simonlisiyu/llm_finetune)](LICENSE)
 [![GitHub last commit](https://img.shields.io/github/last-commit/simonlisiyu/llm_finetune)](https://github.com/simonlisiyu/llm_finetune/commits/main)
