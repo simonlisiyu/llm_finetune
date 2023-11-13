@@ -4,7 +4,9 @@
 ### 一、环境准备：
 1. 代码
    > git clone https://github.com/simonlisiyu/llm_finetune.git
+   > 
    > cd llm_finetune
+   > 
    > pip install -r requirements.txt
 2. 目录准备
    > cd llm_finetune
