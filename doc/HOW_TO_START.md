@@ -85,7 +85,7 @@
    ``` 
 
 4. 启动服务
-   > python run_server.py
+   > python main.py
 
 5. 查看页面
    http://127.0.0.1:8000
