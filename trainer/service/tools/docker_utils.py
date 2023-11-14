@@ -115,7 +115,7 @@ def llm_docker_start(model_name, parent_dir, model_dir, gpus, cip, cport, ip, po
     start_df = datetime.now().strftime(my_settings.datatime_sft)
     print("=====>>>>> 大语言模型docker开始执行:", command)
     container = client.containers.run(
-        "docker.art.haizhi.com/dmc/alita",
+        "docker.art.com/dmc/alita",
         detach=True,
         name=model_name,
         environment=environment,
