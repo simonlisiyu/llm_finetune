@@ -32,7 +32,7 @@
 - 支持BLEU&ROUGE、支持C-EVAL、MMLU、CMMLU等评估方式
 - 评估过程中支持查看日志
 - 列表展示历史评估记录
-  ![模型评估](img/evaluate.jpg)
+  ![模型评估](img/eval.jpg)
 
 # 模型测试(修改测试中)
 - 快速部署大模型服务（fastchat+docker），支持模型命名、模型选择、GPU卡、端口指定
