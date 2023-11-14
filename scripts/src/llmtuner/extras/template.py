@@ -138,16 +138,15 @@ class Template:
         token_ids = []
         for elem in context:
             if isinstance(elem, str):
-                if len(elem) == 0:
-                    continue
                 elem = elem.replace("{{system}}", system, 1) if system is not None else elem
                 elem = elem.replace("{{query}}", query, 1) if query is not None else elem
                 elem = elem.replace("{{idx}}", idx, 1) if idx is not None else elem
-                token_ids = token_ids + tokenizer.encode(elem, **kwargs)
+                if len(elem) != 0:
+                    token_ids = token_ids + tokenizer.encode(elem, **kwargs)
             elif isinstance(elem, dict):
                 token_ids = token_ids + [tokenizer.convert_tokens_to_ids(elem.get("token"))]
             else:
-                raise NotImplementedError
+                raise ValueError("Input must be string or dict[str, str], got {}".format(type(elem)))
 
         return token_ids
 
@@ -250,7 +249,7 @@ register_template(
         "{{system}}"
     ],
     prompt=[
-        "Human: {{query}}\nAssistant: "
+        "Human: {{query}}\nAssistant:"
     ],
     system=(
         "A chat between a curious user and an artificial intelligence assistant. "
@@ -273,7 +272,7 @@ register_template(
         "<<SYS>>\n{{system}}\n<</SYS>>\n\n"
     ],
     prompt=[
-        "[INST] {{query}} [/INST] "
+        "[INST] {{query}} [/INST]"
     ],
     system=(
         "You are a helpful, respectful and honest assistant. "
@@ -290,8 +289,8 @@ register_template(
 
 
 r"""
-Supports: https://github.com/ymcui/Chinese-LLaMA-Alpaca-2
-          https://huggingface.co/ziqingyang/chinese-alpaca-2-7b
+Supports: https://huggingface.co/ziqingyang/chinese-alpaca-2-7b
+          https://huggingface.co/ziqingyang/chinese-alpaca-2-13b
 """
 register_template(
     name="llama2_zh",
@@ -299,7 +298,7 @@ register_template(
         "<<SYS>>\n{{system}}\n<</SYS>>\n\n"
     ],
     prompt=[
-        "[INST] {{query}} [/INST] "
+        "[INST] {{query}} [/INST]"
     ],
     system="You are a helpful assistant. 你是一个乐于助人的助手。",
     sep=[]
@@ -308,7 +307,6 @@ register_template(
 
 r"""
 Supports: https://huggingface.co/tatsu-lab/alpaca-7b-wdiff
-          https://github.com/ymcui/Chinese-LLaMA-Alpaca
 """
 register_template(
     name="alpaca",
@@ -329,8 +327,8 @@ register_template(
 
 
 r"""
-Supports: https://huggingface.co/lmsys/vicuna-7b-delta-v1.1
-          https://huggingface.co/lmsys/vicuna-13b-delta-v1.1
+Supports: https://huggingface.co/lmsys/vicuna-7b-v1.5
+          https://huggingface.co/lmsys/vicuna-13b-v1.5
 """
 register_template(
     name="vicuna",
@@ -338,7 +336,7 @@ register_template(
         "{{system}}"
     ],
     prompt=[
-        "USER: {{query}} ASSISTANT: "
+        "USER: {{query}} ASSISTANT:"
     ],
     system=(
         "A chat between a curious user and an artificial intelligence assistant. "
@@ -367,43 +365,9 @@ register_template(
 
 
 r"""
-Supports: https://github.com/CVI-SZU/Linly
-"""
-register_template(
-    name="linly",
-    prefix=[
-        "{{system}}"
-    ],
-    prompt=[
-        "User: {{query}}\nBot: "
-    ],
-    system="",
-    sep=[
-        "\n"
-    ]
-)
-
-
-r"""
-Supports: https://github.com/Neutralzz/BiLLa
-"""
-register_template(
-    name="billa",
-    prefix=[
-        "{{system}}"
-    ],
-    prompt=[
-        "Human: {{query}}\nAssistant: "
-    ],
-    system="",
-    sep=[
-        "\n"
-    ]
-)
-
-
-r"""
 Supports: https://huggingface.co/IDEA-CCNL/Ziya-LLaMA-13B-v1
+          https://huggingface.co/IDEA-CCNL/Ziya-LLaMA-13B-v1.1
+          https://huggingface.co/IDEA-CCNL/Ziya2-13B-Chat
 """
 register_template(
     name="ziya",
@@ -424,7 +388,9 @@ register_template(
 
 
 r"""
-Supports: https://huggingface.co/qhduan/aquilachat-7b
+Supports: https://huggingface.co/BAAI/AquilaChat-7B
+          https://huggingface.co/BAAI/AquilaChat2-7B
+          https://huggingface.co/BAAI/AquilaChat2-34B
 """
 register_template(
     name="aquila",
@@ -432,7 +398,7 @@ register_template(
         "{{system}}"
     ],
     prompt=[
-        "Human: {{query}}###Assistant: "
+        "Human: {{query}}###Assistant:"
     ],
     system=(
         "A chat between a curious human and an artificial intelligence assistant. "
@@ -440,12 +406,17 @@ register_template(
     ),
     sep=[
         "###"
-    ]
+    ],
+    stop_words=[
+        "</s>"
+    ],
+    efficient_eos=True
 )
 
 
 r"""
 Supports: https://huggingface.co/internlm/internlm-chat-7b
+          https://huggingface.co/internlm/internlm-chat-20b
 """
 register_template(
     name="intern",
@@ -539,6 +510,7 @@ register_template(
 
 r"""
 Supports: https://huggingface.co/Qwen/Qwen-7B-Chat
+          https://huggingface.co/Qwen/Qwen-14B-Chat
 """
 register_template(
     name="chatml",
@@ -588,7 +560,55 @@ register_template(
 
 
 r"""
-Supports: https://huggingface.co/xverse/XVERSE-13B-Chat
+Supports: https://huggingface.co/THUDM/chatglm3-6b
+"""
+register_template(
+    name="chatglm3",
+    prefix=[
+        {"token": "[gMASK]"},
+        {"token": "sop"},
+        "{{system}}"
+    ],
+    prompt=[
+        {"token": "<|user|>"},
+        "\n",
+        "{{query}}",
+        {"token": "<|assistant|>"}
+    ],
+    system="",
+    sep=[],
+    stop_words=[
+        "<|user|>",
+        "<|observation|>"
+    ],
+    efficient_eos=True
+)
+
+
+r"""
+Supports: https://huggingface.co/openchat/openchat_v3.2_super
+"""
+register_template(
+    name="openchat",
+    prefix=[
+        "{{system}}"
+    ],
+    prompt=[
+        "GPT4 User: {{query}}",
+        {"token": "<|end_of_turn|>"},
+        "GPT4 Assistant:"
+    ],
+    system="",
+    sep=[
+        {"token": "<|end_of_turn|>"}
+    ],
+    efficient_eos=True
+)
+
+
+r"""
+Supports: https://huggingface.co/xverse/XVERSE-7B-Chat
+          https://huggingface.co/xverse/XVERSE-13B-Chat
 """
 register_template(
     name="xverse",

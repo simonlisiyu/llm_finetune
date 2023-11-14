@@ -7,8 +7,6 @@
         <li><a href="/finetune">微调训练</a></li>
         <li><a href="/merge">模型合并</a></li>
         <li><a href="/eval">模型评估</a></li>
-        <li><a href="/chat">模型测试</a></li>
-        <li><a href="/script">训练脚本</a></li>
     </ul>
 </nav>
 
@@ -132,9 +130,14 @@
     <label for="input3">训练轮次：</label>
     <input type="text" name="epochs" id="epochs" placeholder="请输入数值（如10）" required>
     <br>
+    <label for="input4">显卡gpus：</label>
+    <input type="text" name="gpus" id="gpus" placeholder="gpu卡编号（非必填，可以空）">
     <br>
-    <label for="input4">超参数：</label>
+    <label for="input5">超参数：</label>
     <input type="text" name="hparams" id="hparams" placeholder="hyper_params（非必填，可以空）">
+    <br>
+    <label for="input6">checkpoint输出目录：</label>
+    <input type="text" name="checkpoint_path" id="checkpoint_path" placeholder="checkpoint输出目录在模型合并会用到" required>
     <br>
     <button type="submit">提交</button>
 </form>

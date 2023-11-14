@@ -42,12 +42,13 @@ def run_ppo(
         ppo_epochs=1,
         max_grad_norm=training_args.max_grad_norm,
         seed=training_args.seed,
-        optimize_cuda_cache=True
+        optimize_cuda_cache=True,
+        target=finetuning_args.ppo_target,
+        log_with=finetuning_args.ppo_logger,
+        use_score_scaling=finetuning_args.ppo_score_norm,
+        use_score_norm=finetuning_args.ppo_score_norm,
+        accelerator_kwargs={"step_scheduler_with_optimizer": False}
     )
-
-    if finetuning_args.ppo_score_norm:
-        ppo_config.use_score_scaling = True
-        ppo_config.use_score_norm = True
 
     optimizer = AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=training_args.learning_rate)
     total_train_batch_size = (
@@ -63,10 +64,11 @@ def run_ppo(
 
     # Initialize our Trainer
     ppo_trainer = CustomPPOTrainer(
+        model_args=model_args,
         training_args=training_args,
+        finetuning_args=finetuning_args,
         generating_args=generating_args,
         callbacks=callbacks + [SavePeftModelCallback()],
-        compute_dtype=model_args.compute_dtype,
         config=ppo_config,
         model=model,
         ref_model=None,
@@ -79,7 +81,7 @@ def run_ppo(
 
     # Training
     if training_args.do_train:
-        ppo_trainer.ppo_train(max_target_length=data_args.max_target_length)
+        ppo_trainer.ppo_train()
         ppo_trainer.save_model()
         ppo_trainer.save_state() # must be called after save_model to have a folder
         if ppo_trainer.is_world_process_zero() and model_args.plot_loss:

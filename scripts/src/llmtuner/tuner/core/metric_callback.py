@@ -13,6 +13,7 @@ class MetricCallback(TrainerCallback):
         self.stage = stage
         redis_instance = RedisSingleton(host=llmtuner_settings.redis_ip,
                                         port=llmtuner_settings.redis_port,
+                                        db=llmtuner_settings.redis_db,
                                         password=llmtuner_settings.redis_password)
         self.redis = redis_instance.get_redis()
 
@@ -32,7 +33,7 @@ class MetricCallback(TrainerCallback):
                 metric_data["status"] = 2
 
             try:
-                self.redis.publish(llmtuner_settings.ALL_TASK_METRIC_MQ, json.dumps(metric_data))
-                print("success publish to ", llmtuner_settings.ALL_TASK_METRIC_MQ, metric_data)
+                self.redis.xadd(llmtuner_settings.ALL_TASK_METRIC_MQ, {metric_data['task_id']: json.dumps(metric_data)})
+                print("success xadd to ", llmtuner_settings.ALL_TASK_METRIC_MQ, metric_data)
             except Exception as e:
-                print("failed publish to ",llmtuner_settings.ALL_TASK_METRIC_MQ, e)
+                print("failed xadd to ",llmtuner_settings.ALL_TASK_METRIC_MQ, e)

@@ -6,4 +6,4 @@ docker run --gpus all --network host --ipc host --name llm_finetune_v1.3 -d \
   -v /data0/service/llm_finetune/logs:/app/logs \
   -v /data/lsy/Chinese-LLaMA-Alpaca-main/data:/app/data \
   --security-opt seccomp=unconfined \
-  docker.art.haizhi.com/dmc/llm_finetune:v1.3
+  docker.art.com/dmc/llm_finetune:v1.3

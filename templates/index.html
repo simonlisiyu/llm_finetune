@@ -7,8 +7,6 @@
         <li><a href="/finetune">微调训练</a></li>
         <li><a href="/merge">模型合并</a></li>
         <li><a href="/eval">模型评估</a></li>
-        <li><a href="/chat">模型测试</a></li>
-        <li><a href="/script">训练脚本</a></li>
     </ul>
 </nav>
 
@@ -34,6 +32,20 @@
         <td>{{ gpu.utilization }}%</td>
         <td>{{ gpu.memory_used }}</td>
         <td>{{ gpu.memory_total }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+<table>
+    <tr>
+        <th>GPU占用程序</th>
+        <th>显卡docker使用情况</th>
+    </tr>
+    {% for process in process_info %}
+    <tr>
+        <td>{{ process.name }}</td>
+        <td>{{ process.usage }}</td>
     </tr>
     {% endfor %}
 </table>

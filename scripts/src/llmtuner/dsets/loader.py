@@ -65,6 +65,8 @@ def get_dataset(
             max_samples_temp = min(len(dataset), max_samples)
             dataset = dataset.select(range(max_samples_temp))
 
+        # TODO: adapt to the sharegpt format
+
         for column_name in ["prompt", "query", "response", "history"]: # align datasets
             if getattr(dataset_attr, column_name) and getattr(dataset_attr, column_name) != column_name:
                 dataset = dataset.rename_column(getattr(dataset_attr, column_name), column_name)
@@ -86,7 +88,11 @@ def get_dataset(
     elif data_args.mix_strategy.startswith("interleave"):
         if not data_args.streaming:
             logger.warning("We recommend using `mix_strategy=concat` in non-streaming mode.")
-        stopping_strategy = "first_exhausted" if data_args.mix_strategy.endswith("under") else "all_exhausted"
-        return interleave_datasets(all_datasets, data_args.interleave_probs, stopping_strategy=stopping_strategy)
+        return interleave_datasets(
+            datasets=all_datasets,
+            probabilities=data_args.interleave_probs,
+            seed=data_args.seed,
+            stopping_strategy="first_exhausted" if data_args.mix_strategy.endswith("under") else "all_exhausted"
+        )
     else:
         raise ValueError("Unknown mixing strategy.")

@@ -2,22 +2,23 @@ import os
 import math
 import torch
 from tqdm import tqdm
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 from transformers import GenerationConfig, Trainer, TrainerState, TrainerControl
 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 
 from trl import PPOTrainer
-from trl.core import LengthSampler, PPODecorators, logprobs_from_logits
+from trl.core import PPODecorators, logprobs_from_logits
 
+from llmtuner.extras.callbacks import LogCallback, SavePeftModelCallback
 from llmtuner.extras.logging import get_logger
 from llmtuner.extras.misc import AverageMeter, count_parameters, get_logits_processor
-from llmtuner.tuner.ppo.utils import cast_layernorm_dtype, replace_model
+from llmtuner.tuner.ppo.utils import dump_layernorm, restore_layernorm, replace_model
 
 if TYPE_CHECKING:
     from transformers import Seq2SeqTrainingArguments, TrainerCallback
     from trl import AutoModelForCausalLMWithValueHead
-    from llmtuner.hparams import GeneratingArguments
+    from llmtuner.hparams import ModelArguments, FinetuningArguments, GeneratingArguments
 
 
 logger = get_logger(__name__)
@@ -30,10 +31,11 @@ class CustomPPOTrainer(PPOTrainer, Trainer):
 
     def __init__(
         self,
+        model_args: "ModelArguments",
         training_args: "Seq2SeqTrainingArguments",
+        finetuning_args: "FinetuningArguments",
         generating_args: "GeneratingArguments",
         callbacks: List["TrainerCallback"],
-        compute_dtype: torch.dtype,
         **kwargs
     ):
         PPOTrainer.__init__(self, **kwargs)
@@ -41,13 +43,19 @@ class CustomPPOTrainer(PPOTrainer, Trainer):
             raise ValueError("PPOTrainer is incompatible with DeepSpeed.")
 
         self.args = training_args
-        self.generating_args = generating_args
-        self.log_callback, self.save_callback = callbacks[0], callbacks[1]
-        self.compute_dtype = compute_dtype
+        self.model_args = model_args
+        self.finetuning_args = finetuning_args
+        self.generation_config = GenerationConfig(
+            pad_token_id=self.tokenizer.pad_token_id,
+            eos_token_id=[self.tokenizer.eos_token_id] + self.tokenizer.additional_special_tokens_ids,
+            **generating_args.to_dict()
+        )
         self.state = TrainerState()
         self.control = TrainerControl()
+        self.log_callback, self.save_callback = callbacks[0], callbacks[1]
+        assert isinstance(self.log_callback, LogCallback) and isinstance(self.save_callback, SavePeftModelCallback)
 
-    def ppo_train(self, max_target_length: int) -> None:
+    def ppo_train(self) -> None:
         r"""
         Implements training loop for the PPO stage, like _inner_training_loop() in Huggingface's Trainer.
         """
@@ -74,16 +82,7 @@ class CustomPPOTrainer(PPOTrainer, Trainer):
             logger.info(f"  Total optimization steps = {max_steps}")
             logger.info(f"  Number of trainable parameters = {count_parameters(self.model)[0]}")
 
-        # Keyword arguments for `model.generate`
-        generating_args = self.generating_args.to_dict()
-        generating_args.update(dict(
-            eos_token_id=[self.tokenizer.eos_token_id] + self.tokenizer.additional_special_tokens_ids,
-            pad_token_id=self.tokenizer.pad_token_id
-        ))
-
-        length_sampler = LengthSampler(max_target_length // 2, max_target_length)
         unwrapped_model: "AutoModelForCausalLMWithValueHead" = self.accelerator.unwrap_model(self.model)
-
         dataiter = iter(self.dataloader)
         steps_trained = 0
         loss_meter = AverageMeter()
@@ -100,7 +99,7 @@ class CustomPPOTrainer(PPOTrainer, Trainer):
             self.model.eval()
 
             # Get inputs
-            queries, responses = self.get_inputs(batch, length_sampler, generating_args)
+            queries, responses = self.get_inputs(batch)
             self.tokenizer.padding_side = "right" # change padding side
             rewards = self.get_rewards(queries, responses, unwrapped_model)
 
@@ -112,8 +111,16 @@ class CustomPPOTrainer(PPOTrainer, Trainer):
             # Run PPO step
             stats = self.step(queries, responses, rewards)
             self.tokenizer.padding_side = "left" # restore padding side
-            loss_meter.update(stats["ppo/loss/total"], n=len(rewards))
+            loss_meter.update(float(stats["ppo/loss/total"]), n=len(rewards))
             reward_meter.update(torch.stack(rewards).mean().item(), n=len(rewards))
+
+            if self.config.log_with is not None:
+                try:
+                    batch["query"] = self.tokenizer.batch_decode(queries, skip_special_tokens=True)
+                    batch["response"] = self.tokenizer.batch_decode(responses, skip_special_tokens=True)
+                    self.log_stats(stats, batch, rewards)
+                except:
+                    logger.warning("Failed to save stats due to unknown errors.")
 
             self.state.global_step += 1
             self.log_callback.on_step_end(self.args, self.state, self.control)
@@ -153,29 +160,24 @@ class CustomPPOTrainer(PPOTrainer, Trainer):
         )
 
     @torch.no_grad()
-    def get_inputs(
-        self,
-        batch: Dict[str, torch.Tensor],
-        length_sampler: Callable,
-        generating_args: Dict[str, Any]
-    ) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
+    def get_inputs(self, batch: Dict[str, torch.Tensor]) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
         r"""
         Generates model's responses given queries.
         """
-        generating_args["max_new_tokens"] = length_sampler()
-        gen_kwargs = dict(
-            generation_config=GenerationConfig(**generating_args),
+        if self.finetuning_args.upcast_layernorm:
+            layernorm_params = dump_layernorm(self.model)
+
+        unwrapped_model: "AutoModelForCausalLMWithValueHead" = self.accelerator.unwrap_model(self.model)
+        response: torch.Tensor = unwrapped_model.generate(
+            generation_config=self.generation_config,
             logits_processor=get_logits_processor(),
             **batch
         )
 
-        input_ids = batch["input_ids"]
-        self.model, layer_norm_params = cast_layernorm_dtype(self.model, self.compute_dtype)
-        unwrapped_model: "AutoModelForCausalLMWithValueHead" = self.accelerator.unwrap_model(self.model)
-        response: torch.Tensor = unwrapped_model.generate(**gen_kwargs)
-        self.model, _ = cast_layernorm_dtype(self.model, self.compute_dtype, layer_norm_params)
-        query, response = input_ids.detach().cpu(), response[:, input_ids.size(-1):].detach().cpu()
+        if self.finetuning_args.upcast_layernorm:
+            restore_layernorm(self.model, layernorm_params)
 
+        query, response = batch["input_ids"].detach().cpu(), response[:, batch["input_ids"].size(-1):].detach().cpu()
         queries, responses = [], []
         for i in range(len(query)):
             query_length = (query[i] != self.tokenizer.pad_token_id).nonzero()[0]
@@ -206,7 +208,7 @@ class CustomPPOTrainer(PPOTrainer, Trainer):
         replace_model(unwrapped_model, target="reward")
         batch = self.prepare_model_inputs(queries, responses)
 
-        with torch.cuda.amp.autocast(dtype=self.compute_dtype): # support bf16
+        with torch.cuda.amp.autocast(dtype=self.model_args.compute_dtype): # support bf16
             _, _, values = self.model(**batch, output_hidden_states=True, return_dict=True)
 
         if values.size(0) != batch["input_ids"].size(0): # adapt to chatglm2
@@ -251,7 +253,7 @@ class CustomPPOTrainer(PPOTrainer, Trainer):
             input_ids = input_kwargs["input_ids"]
             attention_mask = input_kwargs["attention_mask"]
 
-            with torch.cuda.amp.autocast(dtype=self.compute_dtype): # support bf16
+            with torch.cuda.amp.autocast(dtype=self.model_args.compute_dtype): # support bf16
                 logits, _, values = model(**input_kwargs)
 
             if values.size(0) != input_ids.size(0): # adapt to chatglm2

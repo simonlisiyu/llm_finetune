@@ -1,26 +1,6 @@
-# 171
 application:
-  ip: '192.168.1.171'
+  ip: '127.0.0.1'
   port: 8000
   log_level: 'info'
-controller:
-  ip: '192.168.1.171'
-  port: 23620
-worker:
-  model_dir: '/data/s3/llm/'
 trainer:
-  ports: [9901, 9902, 9903, 9904, 9905, 9906, 9907, 9908, 9909, 9910]
-  base_dir: '/data/s3/'
-  data_dir: 'data/'
-  model_dir: 'llm/'
-  log_dir: 'logs/'
-  dev_script_dir: 'scripts/dev/'
-  data_file: "data/dataset_info.json"
-  model_file: "config/model_info.json"
-  finetune_checkpoint: "sft_checkpoint"
-  max_node_num: '1'
-  max_process_num: '1'
-redis:
-  ip: '192.168.1.167'
-  port: 6679
-  password: '123'
+  base_dir: '/data1/lsy/llm_finetune/'

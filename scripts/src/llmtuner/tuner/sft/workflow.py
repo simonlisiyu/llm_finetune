@@ -1,4 +1,5 @@
 # Inspired by: https://github.com/huggingface/transformers/blob/v4.29.2/examples/pytorch/summarization/run_summarization.py
+import json
 
 from typing import TYPE_CHECKING, Optional, List
 from transformers import DataCollatorForSeq2Seq, Seq2SeqTrainingArguments
@@ -7,12 +8,12 @@ from llmtuner.dsets import get_dataset, preprocess_dataset, split_dataset
 from llmtuner.extras.constants import IGNORE_INDEX
 from llmtuner.extras.misc import get_logits_processor
 from llmtuner.extras.ploting import plot_loss
-from llmtuner.tuner.client.redis_tools import RedisSingleton
-from llmtuner.llmtuner_settings import Settings
 from llmtuner.tuner.core import load_model_and_tokenizer
-from llmtuner.tuner.core.metric_callback import MetricCallback
 from llmtuner.tuner.sft.metric import ComputeMetrics
 from llmtuner.tuner.sft.trainer import CustomSeq2SeqTrainer
+from llmtuner.tuner.core.metric_callback import MetricCallback
+from llmtuner.llmtuner_settings import Settings
+from llmtuner.tuner.client.redis_tools import RedisSingleton
 
 if TYPE_CHECKING:
     from transformers import TrainerCallback
@@ -22,16 +23,17 @@ llmtuner_settings = Settings()
 # Redis Client
 redis_instance = RedisSingleton(host=llmtuner_settings.redis_ip,
                                 port=llmtuner_settings.redis_port,
+                                db=llmtuner_settings.redis_db,
                                 password=llmtuner_settings.redis_password)
 r = redis_instance.get_redis()
 
 def run_sft(
-        model_args: "ModelArguments",
-        data_args: "DataArguments",
-        training_args: "Seq2SeqTrainingArguments",
-        finetuning_args: "FinetuningArguments",
-        generating_args: "GeneratingArguments",
-        callbacks: Optional[List["TrainerCallback"]] = None
+    model_args: "ModelArguments",
+    data_args: "DataArguments",
+    training_args: "Seq2SeqTrainingArguments",
+    finetuning_args: "FinetuningArguments",
+    generating_args: "GeneratingArguments",
+    callbacks: Optional[List["TrainerCallback"]] = None
 ):
     dataset = get_dataset(model_args, data_args)
     model, tokenizer = load_model_and_tokenizer(model_args, finetuning_args, training_args.do_train, stage="sft")
@@ -42,13 +44,14 @@ def run_sft(
 
     data_collator = DataCollatorForSeq2Seq(
         tokenizer=tokenizer,
+        pad_to_multiple_of=4 if tokenizer.padding_side == "right" else None, # for shift short attention
         label_pad_token_id=IGNORE_INDEX if data_args.ignore_pad_token_for_loss else tokenizer.pad_token_id
     )
 
     # Override the decoding parameters of Seq2SeqTrainer
     training_args_dict = training_args.to_dict()
     training_args_dict.update(dict(
-        generation_max_length=training_args.generation_max_length or data_args.max_target_length,
+        generation_max_length=training_args.generation_max_length or data_args.cutoff_len,
         generation_num_beams=data_args.eval_num_beams or training_args.generation_num_beams
     ))
     training_args = Seq2SeqTrainingArguments(**training_args_dict)
@@ -81,7 +84,7 @@ def run_sft(
         train_result = trainer.train(resume_from_checkpoint=training_args.resume_from_checkpoint)
         print("1111111111111111111111111,train_result: ", train_result)
         try:
-            r.hset(llmtuner_settings.TRAIN_TASK_RESULT_KEY, finetuning_args.task_id, str(train_result.metrics))
+            r.hset(llmtuner_settings.TRAIN_TASK_RESULT_KEY, finetuning_args.task_id, json.dumps(train_result.metrics))
             print("success put hset ", llmtuner_settings.TRAIN_TASK_RESULT_KEY, finetuning_args.task_id)
         except Exception as e:
             print("failed put hset ", llmtuner_settings.TRAIN_TASK_RESULT_KEY, e)
@@ -99,7 +102,7 @@ def run_sft(
             metrics.pop("eval_loss", None)
         print("1111111111111111111111111,eval_result: ", metrics)
         try:
-            r.hset(llmtuner_settings.EVAL_TASK_RESULT_KEY, finetuning_args.task_id, str(metrics))
+            r.hset(llmtuner_settings.EVAL_TASK_RESULT_KEY, finetuning_args.task_id, json.dumps(metrics))
             print("success put hset ", llmtuner_settings.EVAL_TASK_RESULT_KEY, finetuning_args.task_id)
         except Exception as e:
             print("failed put hset ", llmtuner_settings.EVAL_TASK_RESULT_KEY, e)
@@ -113,8 +116,8 @@ def run_sft(
             predict_results.metrics.pop("predict_loss", None)
         print("1111111111111111111111111,train_result: ", predict_results)
         # try:
-            # r.hset('ALITA:TASK:TRAIN:RESULT', finetuning_args.task_id, str(train_result.metrics))
-            # print("success hset ALITA:TASK:TRAIN:RESULT,", finetuning_args.task_id)
+        # r.hset('ALITA:TASK:TRAIN:RESULT', finetuning_args.task_id, str(train_result.metrics))
+        # print("success hset ALITA:TASK:TRAIN:RESULT,", finetuning_args.task_id)
         # except:
         #     print("failed hset ALITA:TASK:TRAIN:RESULT,", finetuning_args.task_id)
         trainer.log_metrics("predict", predict_results.metrics)

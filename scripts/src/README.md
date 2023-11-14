@@ -1,4 +1,15 @@
-# 更新记录
+## 2023.11.1
+- git pull llmtuner v0.2.0
+- merge [data_args.py](llmtuner%2Fhparams%2Fdata_args.py)
+- merge [finetuning_args.py](llmtuner%2Fhparams%2Ffinetuning_args.py)
+- merge [workflow.py](llmtuner%2Ftuner%2Fsft%2Fworkflow.py)
+- update [evaluate.py](evaluate.py)
+    ```
+    def evaluate(
+        task_id: str,
+        model_name_or_path: str,
+    ```
+- add [run_ceval_params.sh](..%2Frun_ceval_params.sh)
 
 ## 2023.10
 - update [data_args.py](llmtuner%2Fhparams%2Fdata_args.py)llmtuner/hparams/data_args.py
@@ -71,4 +82,5 @@ metadata={"help": "The name of the folder containing datasets."}
 )
 ```
 
-- 2023.9.17 git pull
+## 2023.9.17
+- git pull llmtuner v0.1.8

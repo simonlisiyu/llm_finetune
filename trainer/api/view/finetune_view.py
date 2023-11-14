@@ -31,12 +31,14 @@ async def process_finetune(request: Request):
     model_name = form_data.get("model_name")
     train_data = form_data.get("train_data")
     epochs = form_data.get("epochs")
+    gpus = form_data.get("gpus")
     hparams = form_data.get("hparams")
+    checkpoint_path = form_data.get("checkpoint_path")
     hparams = '{}' if hparams == "" or hparams is None else hparams
     hparams_json = json.loads(hparams)
     hparams_json["epochs"] = epochs
     task_thread = threading.Thread(target=offline_finetune_task,
-                                   args=(model_name, train_data, hparams_json))
+                                   args=(model_name, train_data, checkpoint_path, hparams_json, gpus))
     task_thread.start()
 
     return {"message": "离线训练任务已启动..."}

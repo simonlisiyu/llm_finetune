@@ -7,8 +7,6 @@
         <li><a href="/finetune">微调训练</a></li>
         <li><a href="/merge">模型合并</a></li>
         <li><a href="/eval">模型评估</a></li>
-        <li><a href="/chat">模型测试</a></li>
-        <li><a href="/script">训练脚本</a></li>
     </ul>
 </nav>
 
@@ -116,20 +114,29 @@
 
 <h3>模型评估</h3>
 <form action="/eval/task/run" method="post">
-    <label for="input1">模型选择：</label>
+    <label for="input1">任务类型：</label>
+    <select name="eval_task" id="eval_task" required>
+        {% for task in tasks %}
+        <option value="{{ task }}" {% if loop.first %}selected{% endif %}>{{ task }}</option>
+        {% endfor %}
+    </select>
+    <label for="input2">模型选择：</label>
     <select name="model_name" id="model_name" required>
         {% for model in models %}
         <option value="{{ model }}">{{ model }}</option>
         {% endfor %}
     </select>
-    <label for="input2">评估数据：</label>
+    <label for="input3">评估数据：</label>
     <select name="eval_data" id="eval_data" required>
         {% for dataset in datasets %}
         <option value="{{ dataset }}">{{ dataset }}</option>
         {% endfor %}
     </select>
     <br>
-    <label for="input4">超参数：</label>
+    <label for="input4">显卡gpus：</label>
+    <input type="text" name="gpus" id="gpus" placeholder="gpu卡编号（非必填，可以空）">
+    <br>
+    <label for="input5">超参数：</label>
     <input type="text" name="hparams" id="hparams" placeholder="hyper_params（非必填，可以空）">
     <br>
     <button type="submit">提交</button>

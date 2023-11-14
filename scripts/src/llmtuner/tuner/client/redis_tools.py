@@ -19,7 +19,7 @@ class RedisSingleton:
 
 # redis_instance = RedisSingleton(host=redis_ip, port=redis_port, password=redis_password)
 # r = redis_instance.get_redis()
-
-#r.hset('ALITA:TASK:TRAIN:RESULT', "taskid123", "{'a':'b'}")
+# r.xadd('ALITA:TASK:TRAIN:RESULT', {'task_id': 'task_id123', 'train_action': 0, 'status': 1, 'percentage': 76.171875, 'metrics': {'loss': 3.4145, 'learning_rate': 2.8856780425478346e-06, 'epoch': 0.76}})
+# r.hset('ALITA:TASK:TRAIN:RESULT', "taskid123", "{'a':'b'}")
 
 # print(r.hget('ALITA:TASK:TRAIN:RESULT', "taskid112233"))
