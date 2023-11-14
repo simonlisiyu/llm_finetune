@@ -8,6 +8,13 @@
 
 ## 更新日志
 
+[23/11/14]
+配置进一步精简，基本0配置启动；
+支持chatglm3, qwen, intern, xverse, mistral；
+支持大模型评估，支持C-EVAL、MMLU、CMMLU；
+训练和合并支持指定checkpoint路径；
+系统监控增加gpu进程和docker匹配；
+
 [23/10/28]
 代码重构，支持整体代码整合到alita-trainer里；
 yaml配置文件精简规整，多模型的训练、合并脚本合并统一；
@@ -29,18 +36,19 @@ yaml配置文件精简规整，多模型的训练、合并脚本合并统一；
 
 | 模型名                                                   | 模型大小                     | 默认模块           | Template  |
 | -------------------------------------------------------- | --------------------------- | ----------------- | --------- |
-| [LLaMA](https://github.com/facebookresearch/llama)       | 7B/13B/33B/65B              | q_proj,v_proj     | -         |
-| [LLaMA-2](https://huggingface.co/meta-llama)             | 7B/13B/70B                  | q_proj,v_proj     | llama2    |
-| [BLOOM](https://huggingface.co/bigscience/bloom)         | 560M/1.1B/1.7B/3B/7.1B/176B | query_key_value   | -         |
-| [BLOOMZ](https://huggingface.co/bigscience/bloomz)       | 560M/1.1B/1.7B/3B/7.1B/176B | query_key_value   | -         |
-| [Falcon](https://huggingface.co/tiiuae/falcon-7b)        | 7B/40B                      | query_key_value   | -         |
 | [Baichuan](https://github.com/baichuan-inc/Baichuan-13B) | 7B/13B                      | W_pack            | baichuan  |
 | [Baichuan2](https://github.com/baichuan-inc/Baichuan2)   | 7B/13B                      | W_pack            | baichuan2 |
+| [BLOOM](https://huggingface.co/bigscience/bloom)         | 560M/1.1B/1.7B/3B/7.1B/176B | query_key_value   | -         |
+| [BLOOMZ](https://huggingface.co/bigscience/bloomz)       | 560M/1.1B/1.7B/3B/7.1B/176B | query_key_value   | -         |
+| [ChatGLM3](https://github.com/THUDM/ChatGLM3)            | 6B                          | query_key_value   | chatglm3  |
+| [Falcon](https://huggingface.co/tiiuae/falcon-7b)        | 7B/40B/180B                 | query_key_value   | falcon    |
 | [InternLM](https://github.com/InternLM/InternLM)         | 7B/20B                      | q_proj,v_proj     | intern    |
-| [Qwen](https://github.com/QwenLM/Qwen-7B)                | 7B/14B                      | c_attn            | chatml    |
-| [XVERSE](https://github.com/xverse-ai/XVERSE-13B)        | 13B                         | q_proj,v_proj     | xverse    |
-| [ChatGLM2](https://github.com/THUDM/ChatGLM2-6B)         | 6B                          | query_key_value   | chatglm2  |
+| [LLaMA](https://github.com/facebookresearch/llama)       | 7B/13B/33B/65B              | q_proj,v_proj     | -         |
+| [LLaMA-2](https://huggingface.co/meta-llama)             | 7B/13B/70B                  | q_proj,v_proj     | llama2    |
+| [Mistral](https://huggingface.co/mistralai)              | 7B                          | q_proj,v_proj     | mistral   |
 | [Phi-1.5](https://huggingface.co/microsoft/phi-1_5)      | 1.3B                        | Wqkv              | -         |
+| [Qwen](https://github.com/QwenLM/Qwen)                   | 7B/14B                      | c_attn            | qwen      |
+| [XVERSE](https://github.com/xverse-ai)                   | 7B/13B/65B                  | q_proj,v_proj     | xverse    |
 
 
 
@@ -90,21 +98,8 @@ https://github.com/simonlisiyu/llm_finetune/blob/main/doc/HOW_TO_USE.md
 ### 环境注意：启动会依赖环境，目录及文件需要提前创建好。
 
 ## docker
-### 构建镜像
-> docker build -t docker.li.com/llm_finetune .
-### 运行容器
-> docker run --gpus all --network host --ipc host --name llm_finetune -d \
---ulimit memlock=-1 --ulimit stack=67108864 \
--v /data0/service/llm_finetune/config/171.trainer.yaml:/app/config/trainer.yaml \
--v /data0/LLMs/model_info.json:/app/config/model_info.json \
--v /var/run/docker.sock:/var/run/docker.sock \
--v /data0/LLMs:/app/llm \
--v /data0/logs/llm_finetune:/app/logs \
--v /data0/data/llm_finetune:/app/data \
---security-opt seccomp=unconfined \
-docker.li.com/llm_finetune
+待测试后补充
 
-### docker环境注意：-v之后，trainer.yaml配置容器内目录及文件。
 
 ## 服务验证
 ### web服务
@@ -113,26 +108,6 @@ docker.li.com/llm_finetune
 ### 首页
 > http://localhost:8000
 
-### 离线项目环境
-```shell
-docker save docker.li.com/llm_finetune -o ./llm_finetune.img
-tar -czvf llm_finetune.img.tgz llm_finetune.img
-
-tar -zxvf llm_finetune.img.tgz
-docker load --input llm_finetune.img
-docker images
-```
-
-
-### 浏览器测试
-
-```bash
-python src/web_demo.py \
-    --model_name_or_path path_to_llama_model \
-    --template default \
-    --finetuning_type lora \
-    --checkpoint_dir path_to_checkpoint
-```
 
 
 
