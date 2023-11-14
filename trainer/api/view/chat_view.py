@@ -46,8 +46,9 @@ async def process_chat(request: Request):
     cport = my_settings.controller_port
     ip = my_settings.app_ip
     port = form_data.get("port")
+    additional_args = form_data.get("additional_args")
     task_thread = threading.Thread(target=llm_docker_start,
-                                   args=(model_name, parent_dir, model_dir, gpus, cip, cport, ip, port, ""))
+                                   args=(model_name, parent_dir, model_dir, gpus, cip, cport, ip, port, additional_args))
     task_thread.start()
 
     return {"message": "LLM docker已在启动..."}

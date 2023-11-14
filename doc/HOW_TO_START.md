@@ -11,47 +11,29 @@
 2. 目录准备
    > cd llm_finetune
 
-   创建目录`mkdir config`
+   创建配置目录`mkdir config`，生成配置文件 `touch config/trainer.yaml`，关联配置文件 `ln -s /opt/llm_finetune/config/trainer.yaml scripts/src/llmtuner/`
 
-   关联数据目录： `ln -s /opt/haizhi/common/data/dataset`
+   关联数据目录： `ln -s /data data`
 
-   关联大模型目录：`ln -s /opt/haizhi/common/data/llm`
+   关联大模型目录：`ln -s /llm llm`
 3. 修改配置
    > vi config/trainer.yaml
 
    注意：
 
-    1. 将 `$IP` 替换为本机ip；（如192.168.1.171）
-    2. 将 `$Alita_IP` 替换为alita ip；（如192.168.1.171）
-    3. 将 '$MODEL_DIR' 替换为本机大模型路径；
-    4. 将 REDIS等在需要将监控metric上报时才需要填写；（不用则无需关注）
+    1. 将 `$IP` 替换为本机ip；（如192.168.1.100）
+    2. 将 `$Alita_IP` 替换为alita ip；（如192.168.1.100）
+    3. 将 '$BASE_DIR' 替换为本机llm_finetune路径；
 
    ``` 
    application: 
      ip: '$IP' 
      port: $PORT 
-     log_level: 'info' 
-   controller:
-     ip: '$Alita_IP' 
-     port: $Alita_PORT 
+     log_level: 'info'
    worker:
      model_dir: '$MODEL_DIR' 
-   trainer: 
-     ports: [9901, 9902, 9903, 9904, 9905, 9906, 9907, 9908, 9909, 9910] 
-     base_dir: '/app' 
-     data_dir: 'data/' 
-     model_dir: 'llm/' 
-     log_dir: 'logs/' 
-     dev_script_dir: 'scripts/dev/' 
-     data_file: "data/dataset_info.json" 
-     model_file: "llm/model_info.json" 
-     finetune_checkpoint: "sft_checkpoint" 
-     max_node_num: '1' 
-     max_process_num: '1' 
-   redis: 
-     ip: '$REDIS_IP' 
-     port: $REDIS_PORT 
-     password: '$REDIS_PASSWORD' 
+   trainer:
+     base_dir: '$BASE_DIR'
 
    ``` 
 
@@ -59,30 +41,14 @@
 
    ``` 
    application:
-     ip: '192.168.1.171'
-     port: 8000
-     log_level: 'info'
+   ip: '192.168.1.100'
+   port: 8002
+   log_level: 'info'
    controller:
-     ip: '192.168.1.171'
-     port: 23620
-   worker:
-     model_dir: '/data/s3/llm/'
+   ip: '192.168.1.100'
+   port: 23620
    trainer:
-     ports: [9901, 9902, 9903, 9904, 9905, 9906, 9907, 9908, 9909, 9910]
-     base_dir: '/data/s3/'
-     data_dir: 'data/'
-     model_dir: 'llm/'
-     log_dir: 'logs/'
-     dev_script_dir: 'scripts/dev/'
-     data_file: "data/dataset_info.json"
-     model_file: "config/model_info.json"
-     finetune_checkpoint: "sft_checkpoint"
-     max_node_num: '1'
-     max_process_num: '1'
-   redis:
-     ip: '192.168.1.167'
-     port: 6679
-     password: '123'
+   base_dir: '/opt/llm_finetune/'
 
    ``` 
 

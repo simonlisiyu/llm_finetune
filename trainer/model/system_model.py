@@ -1,4 +1,14 @@
 
+
+class HostInfo:
+    def __init__(self, hostname, ip, port, tag):
+        self.hostname = hostname
+        self.ip = ip
+        self.port = port
+        self.tag = tag
+        self.status = 'up'
+
+
 class GPUInfo:
     def __init__(self, index, name, utilization, memory_used, memory_total):
         self.index = index
@@ -29,3 +39,9 @@ class DiskInfo:
         self.total = total
         self.available = available
         self.percent = percent
+
+
+class GPUProcessInfo:
+    def __init__(self, name, usage):
+        self.name = name
+        self.usage = usage

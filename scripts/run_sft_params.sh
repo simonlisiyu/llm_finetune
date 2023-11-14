@@ -60,21 +60,48 @@ if [ -n "$quantization_bit" ]; then
 fi
 max_source_length=${15}
 if [ -n "$max_source_length" ]; then
-  max_source_length="--max_source_length 512"
+  max_source_length="512"
 fi
 max_target_length=${16}
 if [ -n "$max_target_length" ]; then
-  max_target_length="--max_target_length 512"
+  max_target_length="512"
 fi
 max_samples=${17}
 if [ -n "$max_samples" ]; then
-  max_samples="--max_samples 512"
+  max_samples="512"
 fi
 task_id=${18}
 
 deepspeed_config_file=ds_zero2_no_offload.json
 
+echo CUDA_VISIBLE_DEVICES=$gpus torchrun --nnodes ${nnodes} --nproc_per_node ${nproc} --master_addr ${master_addr} --master_port ${master_port} src/train_bash.py \
+         --task_id ${task_id} \
+         --deepspeed ${deepspeed_config_file} \
+         --stage ${stage} \
+         --model_name_or_path ${pretrained_model} \
+         --do_train \
+         --dataset ${dataset_name} \
+         --template ${template} \
+         --finetuning_type ${finetuning_type} \
+         --lora_target ${lora_target} \
+         --output_dir ${output_path} \
+         --overwrite_output_dir \
+         --overwrite_cache \
+         --per_device_train_batch_size ${per_device_train_batch_size} \
+         --gradient_accumulation_steps ${gradient_accumulation_steps} \
+         --lr_scheduler_type ${lr_scheduler_type} \
+         --logging_steps ${logging_steps} \
+         --save_steps ${save_steps} \
+         --learning_rate ${lr} \
+         --num_train_epochs ${num_train_epochs} \
+         --plot_loss \
+         ${quantization_bit} \
+         --cutoff_len ${max_source_length} \
+         --max_samples ${max_samples} \
+         --bf16
+
 cd scripts && CUDA_VISIBLE_DEVICES=$gpus torchrun --nnodes ${nnodes} --nproc_per_node ${nproc} --master_addr ${master_addr} --master_port ${master_port} src/train_bash.py \
+    --task_id ${task_id} \
     --deepspeed ${deepspeed_config_file} \
     --stage ${stage} \
     --model_name_or_path ${pretrained_model} \
@@ -95,7 +122,6 @@ cd scripts && CUDA_VISIBLE_DEVICES=$gpus torchrun --nnodes ${nnodes} --nproc_per
     --num_train_epochs ${num_train_epochs} \
     --plot_loss \
     ${quantization_bit} \
-    ${max_source_length} \
-    ${max_target_length} \
-    ${max_samples} \
-    --fp16
+    --cutoff_len ${max_source_length} \
+    --max_samples ${max_samples} \
+    --bf16

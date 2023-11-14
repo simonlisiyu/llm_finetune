@@ -4,7 +4,8 @@
 import threading
 
 from fastapi import APIRouter
-from ..service.api_task_service import total_task_run, task_kill
+from ..service.api_task_service import total_task_run, list_hyper_parameters
+from ..service.system_service import task_kill
 from ..model import TrainTaskRequest, TasksRequest
 
 router = APIRouter(prefix="/trainer/task", tags=["trainer task api"])
@@ -37,6 +38,11 @@ async def tasks_stop(request: TasksRequest):
     task_id = request.task_id
     task_kill(task_id)
     return {"status": 0, "message": "指定TaskId任务已停止.", "data": {}}
+
+
+@router.get('/params/list', summary="模型训练超参接口", description="list hyper parameters")
+async def list_hyper_params():
+    return {"status": 0, "message": "模型训练超参列表.", "data": list_hyper_parameters()}
 
 #
 # @router.post('/train/start', summary="训练任务启动接口", description="start_train")

@@ -3,6 +3,9 @@ import threading
 from fastapi.templating import Jinja2Templates
 from ...service.merge_service import offline_merge_task, get_task_log
 from ...service.finetune_service import get_models_names
+from ...settings import Settings
+
+my_settings = Settings()
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -28,9 +31,10 @@ async def merge(request: Request):
 async def process_merge(request: Request):
     form_data = await request.form()
     model_name = form_data.get("model_name")
+    checkpoint_path = form_data.get("checkpoint_path")
     output_path = form_data.get("output_path")
     task_thread = threading.Thread(target=offline_merge_task,
-                                   args=(model_name, output_path))
+                                   args=(model_name, checkpoint_path, output_path))
     task_thread.start()
 
     return {"message": "离线合并任务已启动..."}

@@ -1,0 +1,5 @@
+system:
+  has_docker: true
+  procfs_path: "/proc"
+application:
+  in_docker: false

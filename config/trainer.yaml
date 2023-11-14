@@ -2,8 +2,5 @@ application:
   ip: '127.0.0.1'
   port: 8000
   log_level: 'info'
-controller:
-  ip: '127.0.0.1'
-  port: 23620
 trainer:
-  base_dir: '/content/'
+  base_dir: '/data1/lsy/llm_finetune/'

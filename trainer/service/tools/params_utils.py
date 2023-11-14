@@ -21,13 +21,15 @@ def get_job_info(req_info: dict) -> dict:
     job_info['task_id'] = choose_default_or_request_params('task_id', job_info, req_info)
     job_info['train_data'] = choose_default_or_request_params('train_data', job_info, req_info)
     job_info['eval_data'] = choose_default_or_request_params('eval_data', job_info, req_info)
-    job_info['checkpoint_path'] = my_settings.base_dir + choose_default_or_request_params('checkpoint_path', job_info, req_info) + job_info['task_id']
+    job_info['eval_task'] = choose_default_or_request_params('eval_task', job_info, req_info)
+    job_info['checkpoint_path'] = my_settings.base_dir + choose_default_or_request_params('checkpoint_path', job_info, req_info)
     job_info['output_path'] = my_settings.base_dir + choose_default_or_request_params('output_path', job_info, req_info)
     job_info['eval_path'] = my_settings.base_dir + choose_default_or_request_params('eval_path', job_info, req_info) + job_info['task_id']
     job_info['log_path'] = my_settings.base_dir + choose_default_or_request_params('log_path', job_info, req_info)
     job_info['gpus'] = choose_default_or_request_params('gpus', job_info, req_info)
     job_info['nnodes'] = choose_default_or_request_params('nnodes', job_info, req_info)
-    job_info['nproc_per_node'] = choose_default_or_request_params('nproc_per_node', job_info, req_info)
+    job_info['nproc_per_node'] = str(len(choose_default_or_request_params('gpus', job_info, req_info).split(",")))
+    # job_info['nproc_per_node'] = choose_default_or_request_params('nproc_per_node', job_info, req_info)
     job_info['master_addr'] = choose_default_or_request_params('master_addr', job_info, req_info)
     job_info['master_port'] = str(choose_default_or_request_params('master_port', job_info, req_info))
     return job_info

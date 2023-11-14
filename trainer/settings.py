@@ -22,10 +22,10 @@ class Settings(metaclass=Singleton):
             self.app_log_level = yaml_conf["application"]["log_level"]
 
             # controller
-            self.controller_ip = yaml_conf["controller"]["ip"]
-            self.controller_port = yaml_conf["controller"]["port"]
-            self.controller_url = "http://" + self.controller_ip  + ":" + str(self.controller_port)
-            self.chat_url = self.controller_url + "/chat"
+            # self.controller_ip = yaml_conf["controller"]["ip"]
+            # self.controller_port = yaml_conf["controller"]["port"]
+            # self.controller_url = "http://" + self.controller_ip  + ":" + str(self.controller_port)
+            # self.chat_url = self.controller_url + "/chat"
 
             # worker
             self.worker_model_path = yaml_conf["trainer"]["base_dir"] + "llm/"
@@ -48,13 +48,15 @@ class Settings(metaclass=Singleton):
             # redis
             self.redis_ip = '127.0.0.1'
             self.redis_port = 6379
+            self.redis_db = 0
             self.redis_password = ""
 
         # 常量
         self.datatime_sft = '%Y-%m-%d_%H:%M:%S'
-        self.ALL_TASK_METRIC_MQ = 'ALITA:TASK:TRAIN:METRIC'
-        self.TRAIN_TASK_RESULT_KEY = 'ALITA:TASK:TRAIN:RESULT'
-        self.EVAL_TASK_RESULT_KEY = 'ALITA:TASK:EVAL:RESULT'
+        self.ALL_TASK_METRIC_MQ = 'TRAINER:TASK:TRAIN:METRIC'
+        self.TRAIN_TASK_RESULT_KEY = 'TRAINER:TASK:TRAIN:RESULT'
+        self.EVAL_TASK_RESULT_KEY = 'TRAINER:TASK:EVAL:RESULT'
+        self.process = {}
         self.task_params = {
             'script': {
                 'copy_file_script': 'scripts/file_copy.sh',
@@ -334,5 +336,15 @@ class Settings(metaclass=Singleton):
                 "help": "模型保存的精度粒度",
             }
         ]
+
+        with open("config/advanced.yaml", "r") as file:
+            yaml_conf = yaml.safe_load(file)
+
+            # system
+            self.has_docker = yaml_conf["system"]["has_docker"]
+            self.procfs_path = yaml_conf["system"]["procfs_path"]
+
+            # application
+            self.in_docker = yaml_conf["application"]["in_docker"]
 
 

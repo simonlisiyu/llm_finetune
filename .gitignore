@@ -14,5 +14,7 @@ logs/*
 .ipynb_checkpoints/
 *.iml
 
-# 忽略本地模型文件
+# 忽略本地模型文件、配置文件和数据文件
 llm/*
+config/*
+data/*

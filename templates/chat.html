@@ -7,8 +7,6 @@
         <li><a href="/finetune">微调训练</a></li>
         <li><a href="/merge">模型合并</a></li>
         <li><a href="/eval">模型评估</a></li>
-        <li><a href="/chat">模型测试</a></li>
-        <li><a href="/script">训练脚本</a></li>
     </ul>
 </nav>
 
@@ -142,6 +140,9 @@
     <input type="text" name="gpus" id="gpus" placeholder="根据服务器gpu卡情况而定，如服务器GPU可选0-7，输入: 0,1" required>
     <label for="input5">推理服务port：</label>
     <input type="text" name="port" id="port" placeholder="非冲突的端口号，如23624" required>
+    <br>
+    <label for="input6">额外参数：</label>
+    <input type="text" name="additional_args" id="additional_args" placeholder="非必填" >
     <br>
     <button type="submit">提交</button>
 </form>

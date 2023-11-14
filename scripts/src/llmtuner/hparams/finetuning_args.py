@@ -8,21 +8,17 @@ class FinetuningArguments:
     r"""
     Arguments pertaining to which techniques we are going to fine-tuning with.
     """
+    task_id: Optional[str] = field(
+        default="task_id123",
+        metadata={"help": "Task ID for The Job Task"}
+    )
+    stage: Optional[Literal["pt", "sft", "rm", "ppo", "dpo"]] = field(
+        default="sft",
+        metadata={"help": "Which stage will be performed in training."}
+    )
     finetuning_type: Optional[Literal["lora", "freeze", "full", "none"]] = field(
         default="lora",
         metadata={"help": "Which fine-tuning method to use."}
-    )
-    num_hidden_layers: Optional[int] = field(
-        default=32,
-        metadata={"help": "Number of decoder blocks in the model for partial-parameter (freeze) fine-tuning. \
-                  LLaMA choices: [\"32\", \"40\", \"60\", \"80\"], \
-                  LLaMA-2 choices: [\"32\", \"40\", \"80\"], \
-                  BLOOM choices: [\"24\", \"30\", \"70\"], \
-                  Falcon choices: [\"32\", \"60\"], \
-                  Baichuan choices: [\"32\", \"40\"] \
-                  Qwen choices: [\"32\"], \
-                  XVERSE choices: [\"40\"], \
-                  ChatGLM2 choices: [\"28\"]"}
     )
     num_layer_trainable: Optional[int] = field(
         default=3,
@@ -33,9 +29,9 @@ class FinetuningArguments:
         metadata={"help": "Name of trainable modules for partial-parameter (freeze) fine-tuning. \
                   LLaMA choices: [\"mlp\", \"self_attn\"], \
                   BLOOM & Falcon & ChatGLM2 choices: [\"mlp\", \"self_attention\"], \
-                  Baichuan choices: [\"mlp\", \"self_attn\"], \
                   Qwen choices: [\"mlp\", \"attn\"], \
-                  LLaMA-2, InternLM, XVERSE choices: the same as LLaMA."}
+                  Phi-1.5 choices: [\"mlp\", \"mixer\"], \
+                  LLaMA-2, Baichuan, InternLM, XVERSE choices: the same as LLaMA."}
     )
     lora_rank: Optional[int] = field(
         default=8,
@@ -56,7 +52,12 @@ class FinetuningArguments:
                   BLOOM & Falcon & ChatGLM2 choices: [\"query_key_value\", \"self_attention.dense\", \"mlp.dense\"], \
                   Baichuan choices: [\"W_pack\", \"o_proj\", \"gate_proj\", \"up_proj\", \"down_proj\"], \
                   Qwen choices: [\"c_attn\", \"attn.c_proj\", \"w1\", \"w2\", \"mlp.c_proj\"], \
+                  Phi-1.5 choices: [\"Wqkv\", \"out_proj\", \"fc1\", \"fc2\"], \
                   LLaMA-2, InternLM, XVERSE choices: the same as LLaMA."}
+    )
+    additional_target: Optional[str] = field(
+        default=None,
+        metadata={"help": "Name(s) of modules apart from LoRA layers to be set as trainable and saved in the final checkpoint."}
     )
     resume_lora_training: Optional[bool] = field(
         default=True,
@@ -64,27 +65,35 @@ class FinetuningArguments:
     )
     ppo_score_norm: Optional[bool] = field(
         default=False,
-        metadata={"help": "Use score normalization in PPO Training."}
+        metadata={"help": "Use score normalization in PPO training."}
+    )
+    ppo_logger: Optional[str] = field(
+        default=None,
+        metadata={"help": "Log with either 'wandb' or 'tensorboard' in PPO training."}
+    )
+    ppo_target: Optional[float] = field(
+        default=6.0,
+        metadata={"help": "Target KL value for adaptive KL control in PPO training."}
     )
     dpo_beta: Optional[float] = field(
         default=0.1,
         metadata={"help": "The beta parameter for the DPO loss."}
     )
-    task_id: Optional[str] = field(
-        default="task_id123",
-        metadata={"help": "Task ID for The Job Task"}
+    upcast_layernorm: Optional[bool] = field(
+        default=False,
+        metadata={"help": "Whether to upcast the layernorm weights in fp32."}
+    )
+    neft_alpha: Optional[float] = field(
+        default=0,
+        metadata={"help": "The alpha parameter to control the noise magnitude in NEFTune."}
     )
 
     def __post_init__(self):
         if isinstance(self.lora_target, str): # support custom target modules/layers of LoRA
             self.lora_target = [target.strip() for target in self.lora_target.split(",")]
 
-        if self.num_layer_trainable > 0: # fine-tuning the last n layers if num_layer_trainable > 0
-            trainable_layer_ids = [self.num_hidden_layers - k - 1 for k in range(self.num_layer_trainable)]
-        else: # fine-tuning the first n layers if num_layer_trainable < 0
-            trainable_layer_ids = [k for k in range(-self.num_layer_trainable)]
-
-        self.trainable_layers = ["{:d}.{}".format(idx, self.name_module_trainable) for idx in trainable_layer_ids]
+        if isinstance(self.additional_target, str):
+            self.additional_target = [target.strip() for target in self.additional_target.split(",")]
 
         assert self.finetuning_type in ["lora", "freeze", "full", "none"], "Invalid fine-tuning method."
 
