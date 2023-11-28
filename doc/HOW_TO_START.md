@@ -85,7 +85,9 @@
    "Usage: run.sh [start|stop|restart] [llm_dir]"
    llm_dir为选填（会自动软链接ln）
    > sh bin/run.sh start /data/LLMs
-   or 
+   
+   or
+    
    > sh bin/run.sh start
 
 7. 查看页面
