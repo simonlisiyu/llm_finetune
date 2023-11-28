@@ -90,5 +90,5 @@
     
    > sh bin/run.sh start
 
-7. 查看页面
+6. 查看页面
    http://$IP:8000
