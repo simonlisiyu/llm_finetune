@@ -11,18 +11,15 @@
 2. 目录准备
    > cd llm_finetune
 
-   创建配置目录`mkdir config`，生成配置文件 `touch config/trainer.yaml`，关联配置文件 `ln -s /opt/llm_finetune/config/trainer.yaml scripts/src/llmtuner/`
+   修改配置文件 `config/trainer.yaml`，按需修改配置文件 `config/model_info.json`
 
-   关联数据目录： `ln -s /data data`
-
-   关联大模型目录：`ln -s /llm llm`
 3. 修改配置
    > vi config/trainer.yaml
 
    注意：
 
     1. 将 `$IP` 替换为本机ip；（如192.168.1.100）
-    2. 将 `$BASE_DIR` 替换为本机llm_finetune路径；
+    2. 将 `$BASE_DIR` 替换为本机llm_finetune绝对路径；（如/opt/llm_finetune）
 
    ``` 
    application: 
@@ -51,13 +48,13 @@
    注意：（初始化的大模型需要手动编辑model_info.yaml，后续训练的大模型会自动更新到此文件内，无需再手动编辑）
 
    1. 将 `$MODEL_NAME` 替换为模型名称；（如chatglm2-6b）
-   2. 将 `$MODEL_DIR` 替换为基于BASE_DIR的模型相对路径；（如llm/ChatGLM2-6B）
+   2. 将 `$MODEL_DIR` 替换为基于BASE_DIR的模型路径；（如ChatGLM2-6B）
    3. 将 `$TEMPLATE` 和 `$SIZE` 和 `$DATETIME` 替换为对应的内容；
 
    ```
    {
      "$MODEL_NAME": {
-       "model_path": "$MODEL_DIR",
+       "model_path": llm/"$MODEL_DIR",
        "template": "$TEMPLATE",
        "size": "$SIZE",
        "update_at": "$DATETIME"
@@ -74,12 +71,22 @@
        "template": "chatglm2",
        "size": "6",
        "update_at": "2023-07-06_15:56:28"
+     }，
+     "chatglm3-6b": {
+       "model_path": "llm/ChatGLM3-6B",
+       "template": "chatglm3",
+       "size": "6",
+       "update_at": "2023-07-06_15:56:28"
      }
    }
    ```
 
 5. 启动服务
-   > python main.py
+   "Usage: run.sh [start|stop|restart] [llm_dir]"
+   llm_dir为选填（会自动软链接ln）
+   > sh bin/run.sh start /data/LLMs
+   or 
+   > sh bin/run.sh start
 
-6. 查看页面
-   http://127.0.0.1:8000
+7. 查看页面
+   http://$IP:8000
